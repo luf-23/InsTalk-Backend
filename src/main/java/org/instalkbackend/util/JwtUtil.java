@@ -2,13 +2,15 @@ package org.instalkbackend.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.Map;
-
+@Component
 public class JwtUtil {
 
-    private static final String KEY = "this_is_a_key";
+    private static final String KEY = "this is a key";
 
     public static final long ACCESS_EXPIRE_TIME = 1000 * 60 * 60;//1h
     //public static final long ACCESS_EXPIRE_TIME = 1000 * 6;//6s
