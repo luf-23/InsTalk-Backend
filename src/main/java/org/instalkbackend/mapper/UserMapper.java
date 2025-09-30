@@ -1,5 +1,6 @@
 package org.instalkbackend.mapper;
 
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.instalkbackend.model.po.User;
@@ -13,4 +14,6 @@ public interface UserMapper {
     @Select("SELECT * FROM user WHERE email = #{email}")
     User selectByEmail(String email);
 
+    @Insert("insert into user (username,email,password) values (#{username},#{email},#{password})")
+    void add(User user);
 }

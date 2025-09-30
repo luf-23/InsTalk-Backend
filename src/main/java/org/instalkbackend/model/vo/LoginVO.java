@@ -2,7 +2,7 @@ package org.instalkbackend.model.vo;
 
 import lombok.Data;
 import org.instalkbackend.model.po.User;
-
+//auth/login
 @Data
 public class LoginVO {
     private Long id;
