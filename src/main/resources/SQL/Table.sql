@@ -22,13 +22,13 @@ CREATE TABLE IF NOT EXISTS user (
 -- 好友关系表
 CREATE TABLE IF NOT EXISTS friendship (
                                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                           user_id BIGINT NOT NULL,
-                                           friend_id BIGINT NOT NULL,
+                                           user_id1 BIGINT NOT NULL, -- 小id
+                                           user_id2 BIGINT NOT NULL, -- 大id
                                            status ENUM('PENDING', 'ACCEPTED', 'BLOCKED') DEFAULT 'PENDING',
                                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                           FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
-                                           FOREIGN KEY (friend_id) REFERENCES user(id) ON DELETE CASCADE,
-                                           UNIQUE KEY unique_friendship (user_id, friend_id)
+                                           FOREIGN KEY (user_id1) REFERENCES user(id) ON DELETE CASCADE,
+                                           FOREIGN KEY (user_id2) REFERENCES user(id) ON DELETE CASCADE,
+                                           UNIQUE KEY unique_friendship (user_id1, user_id2)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=100001;
 
 -- 群组表

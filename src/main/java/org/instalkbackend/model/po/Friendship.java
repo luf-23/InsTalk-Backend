@@ -1,0 +1,14 @@
+package org.instalkbackend.model.po;
+
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+@Data
+public class Friendship {
+    private Long id;
+    private Long userId1;
+    private Long userId2;
+    private String status;
+    private LocalDateTime createdAt;
+}

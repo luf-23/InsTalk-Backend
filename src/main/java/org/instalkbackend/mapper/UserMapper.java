@@ -14,6 +14,9 @@ public interface UserMapper {
     @Select("SELECT * FROM user WHERE email = #{email}")
     User selectByEmail(String email);
 
+    @Select("SELECT * FROM user WHERE id = #{id}")
+    User selectById(Long id);
+
     @Insert("insert into user (username,email,password) values (#{username},#{email},#{password})")
     void add(User user);
 }
