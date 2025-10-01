@@ -29,7 +29,6 @@ public class LoginInterceptor implements HandlerInterceptor {
                 response.setStatus(401);
                 return false;
             }
-
             ThreadLocalUtil.set(claims);
             return true;
         }catch(Exception e){

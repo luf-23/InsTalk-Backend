@@ -33,7 +33,7 @@ public class AuthController {
         return authService.logout();
     }
 
-    @GetMapping("/refresh")
+    @PostMapping("/refresh")
     public Result<RefreshVO> refresh(@RequestBody String refreshToken, HttpServletResponse response){
         return authService.refresh(refreshToken,response);
     }

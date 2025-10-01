@@ -33,11 +33,26 @@ public class JwtUtil {
 
     //接收token,验证token,并返回业务数据
     public static Map<String, Object> parseToken(String token) {
-        return JWT.require(Algorithm.HMAC256(KEY))
+        Map<String, Object> claims = JWT.require(Algorithm.HMAC256(KEY))
                 .build()
                 .verify(token)
                 .getClaim("claims")
                 .asMap();
+
+        // 手动处理类型转换
+        return convertNumberTypes(claims);
+    }
+
+    private static Map<String, Object> convertNumberTypes(Map<String, Object> claims) {
+        for (Map.Entry<String, Object> entry : claims.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof Integer) {
+                if ("id".equals(entry.getKey())) {
+                    entry.setValue(((Integer) value).longValue());
+                }
+            }
+        }
+        return claims;
     }
 
 }
