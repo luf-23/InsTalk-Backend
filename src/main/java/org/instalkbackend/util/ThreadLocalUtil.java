@@ -1,5 +1,7 @@
 package org.instalkbackend.util;
 
+import java.util.Map;
+
 /**
  * ThreadLocal 工具类
  */
@@ -22,5 +24,14 @@ public class ThreadLocalUtil {
     //清除ThreadLocal 防止内存泄漏
     public static void remove(){
         THREAD_LOCAL.remove();
+    }
+
+    public static Long getId(){
+        Map<String,Object> claims = ThreadLocalUtil.get();
+        return (Long) claims.get("id");
+    }
+    public static String getUsername(){
+        Map<String,Object> claims = ThreadLocalUtil.get();
+        return (String) claims.get("username");
     }
 }

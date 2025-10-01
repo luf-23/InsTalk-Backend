@@ -3,6 +3,8 @@ package org.instalkbackend.mapper;
 import org.apache.ibatis.annotations.*;
 import org.instalkbackend.model.po.Friendship;
 
+import java.util.List;
+
 @Mapper
 public interface FriendshipMapper {
 
@@ -20,4 +22,19 @@ public interface FriendshipMapper {
 
     @Delete("delete from friendship where user_id1= #{id1} AND user_id2= #{id2} AND status='ACCEPTED'")
     void deleteRequest(Long id1, Long id2);
+
+
+    @Select("SELECT user_id2 FROM friendship " +
+            "WHERE status = 'ACCEPTED' AND user_id1 = #{myId}" +
+            " UNION " +
+            "SELECT user_id1 FROM friendship " +
+            "WHERE status = 'ACCEPTED' AND user_id2 = #{myId}")
+    List<Long> selectFriendsId(Long myId);
+
+    @Select("SELECT user_id2 FROM friendship " +
+            "WHERE status = 'PENDING' AND user_id1 = #{myId}" +
+            " UNION " +
+            "SELECT user_id1 FROM friendship " +
+            "WHERE status = 'PENDING' AND user_id2 = #{myId}")
+    List<Long> selectPendingId(Long myId);
 }

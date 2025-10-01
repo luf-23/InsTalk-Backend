@@ -1,13 +1,13 @@
 package org.instalkbackend.controller;
 
 import org.instalkbackend.mapper.UserMapper;
+import org.instalkbackend.model.vo.FriendVO;
 import org.instalkbackend.model.vo.Result;
 import org.instalkbackend.service.FriendshipService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/friendship")
@@ -39,10 +39,21 @@ public class FriendshipController {
     }
 
     @PostMapping("/delete")
-    public Result deleteFriendshipRequest(@RequestParam String username) {
+    public Result deleteFriendship(@RequestParam String username) {
         if (username == null) return Result.error("用户名为空");
         if (userMapper.selectByUsername(username) == null) return Result.error("用户不存在");
-        return friendshipService.deleteFriendshipRequest(username);
+        return friendshipService.deleteFriendship(username);
     }
+
+    @GetMapping("/friendList")
+    public Result<List<FriendVO>> getFriendList() {
+        return friendshipService.getFriendList();
+    }
+
+    @GetMapping("/pendingList")
+    public Result<List<FriendVO>> getPendingList() {
+        return friendshipService.getPendingList();
+    }
+
 
 }

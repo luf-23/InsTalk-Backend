@@ -3,12 +3,14 @@ package org.instalkbackend.service.impl;
 import org.instalkbackend.mapper.FriendshipMapper;
 import org.instalkbackend.mapper.UserMapper;
 import org.instalkbackend.model.po.Friendship;
+import org.instalkbackend.model.vo.FriendVO;
 import org.instalkbackend.model.vo.Result;
 import org.instalkbackend.service.FriendshipService;
 import org.instalkbackend.util.ThreadLocalUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -21,8 +23,7 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     @Override
     public Result sendFriendshipRequest(String username) {
-        Map<String,Object> claims = ThreadLocalUtil.get();
-        String myUsername = (String) claims.get("username");
+        String myUsername = ThreadLocalUtil.getUsername();
         if (myUsername.equals(username)) return Result.error("不能添加自己为好友");
         Long myId = userMapper.selectByUsername(myUsername).getId();
         Long id = userMapper.selectByUsername(username).getId();
@@ -40,8 +41,7 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     @Override
     public Result acceptFriendshipRequest(String username) {
-        Map<String,Object> claims = ThreadLocalUtil.get();
-        String myUsername = (String) claims.get("username");
+        String myUsername = ThreadLocalUtil.getUsername();
         if (myUsername.equals(username)) return Result.error("不能添加自己为好友");
         Long myId = userMapper.selectByUsername(myUsername).getId();
         Long id = userMapper.selectByUsername(username).getId();
@@ -59,8 +59,7 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     @Override
     public Result rejectFriendshipRequest(String username) {
-        Map<String,Object> claims = ThreadLocalUtil.get();
-        String myUsername = (String) claims.get("username");
+        String myUsername = ThreadLocalUtil.getUsername();
         if (myUsername.equals(username)) return Result.error("操作失败");
         Long myId = userMapper.selectByUsername(myUsername).getId();
         Long id = userMapper.selectByUsername(username).getId();
@@ -77,9 +76,8 @@ public class FriendshipServiceImpl implements FriendshipService {
     }
 
     @Override
-    public Result deleteFriendshipRequest(String username) {
-        Map<String,Object> claims = ThreadLocalUtil.get();
-        String myUsername = (String) claims.get("username");
+    public Result deleteFriendship(String username) {
+        String myUsername = ThreadLocalUtil.getUsername();
         if (myUsername.equals(username)) return Result.error("操作失败");
         Long myId = userMapper.selectByUsername(myUsername).getId();
         Long id = userMapper.selectByUsername(username).getId();
@@ -95,5 +93,34 @@ public class FriendshipServiceImpl implements FriendshipService {
         return  Result.success();
     }
 
+    @Override
+    public Result<List<FriendVO>> getFriendList() {
+        Long myId = ThreadLocalUtil.getId();
+        List<Long> Ids = friendshipMapper.selectFriendsId(myId);
+        List<FriendVO> friendList = userMapper.selectByIds(Ids).stream().map(user -> {
+            FriendVO friendVO = new FriendVO();
+            friendVO.setId(user.getId());
+            friendVO.setUsername(user.getUsername());
+            friendVO.setNickname(user.getNickname());
+            friendVO.setAvatar(user.getAvatar());
+            return friendVO;
+        }).toList();
+        return Result.success(friendList);
+    }
+
+    @Override
+    public Result<List<FriendVO>> getPendingList() {
+        Long myId = ThreadLocalUtil.getId();
+        List<Long> Ids = friendshipMapper.selectPendingId(myId);
+        List<FriendVO> pendingList = userMapper.selectByIds(Ids).stream().map(user -> {
+            FriendVO friendVO = new FriendVO();
+            friendVO.setId(user.getId());
+            friendVO.setUsername(user.getUsername());
+            friendVO.setNickname(user.getNickname());
+            friendVO.setAvatar(user.getAvatar());
+            return friendVO;
+        }).toList();
+        return Result.success(pendingList);
+    }
 
 }
