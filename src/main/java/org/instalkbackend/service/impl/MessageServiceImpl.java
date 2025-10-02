@@ -1,0 +1,99 @@
+package org.instalkbackend.service.impl;
+
+import org.instalkbackend.mapper.GroupMember;
+import org.instalkbackend.mapper.MessageMapper;
+import org.instalkbackend.mapper.MessageStatusMapper;
+import org.instalkbackend.model.dto.MessageDTO;
+import org.instalkbackend.model.po.Message;
+import org.instalkbackend.model.vo.GroupVO;
+import org.instalkbackend.model.vo.MessageVO;
+import org.instalkbackend.model.vo.Result;
+import org.instalkbackend.service.MessageService;
+import org.instalkbackend.util.ThreadLocalUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class MessageServiceImpl implements MessageService {
+
+    @Autowired
+    private MessageMapper messageMapper;
+    @Autowired
+    private MessageStatusMapper messageStatusMapper;
+    @Autowired
+    private GroupMember groupMemberMapper;
+
+    @Override
+    public Result sendMessage(MessageDTO messageDTO) {
+        Long senderId = ThreadLocalUtil.getId();
+        Message message = new Message();
+        message.setSenderId(senderId);
+        message.setContent(messageDTO.getContent());
+        message.setMessageType(messageDTO.getMessageType());
+        message.setReceiverId(messageDTO.getReceiverId());
+        message.setGroupId(messageDTO.getGroupId());
+
+        if (messageDTO.getReceiverId()!= null){
+            messageMapper.addPrivateMessage(message);
+            messageStatusMapper.add(message.getId(),message.getReceiverId());
+        }
+        if (messageDTO.getGroupId()!= null){
+            messageMapper.addGroupMessage(message);
+            List<GroupVO.Member> receiverIds = groupMemberMapper.selectMembersByGroupId(message.getGroupId());
+            for (GroupVO.Member member : receiverIds) {
+                if (member.getId()==senderId) continue;
+                messageStatusMapper.add(message.getId(),member.getId());
+            }
+        }
+        return Result.success();
+    }
+
+    @Override
+    public Result<List<MessageVO>> getMessageList() {
+        Long userId = ThreadLocalUtil.getId();
+        List<MessageVO> messageVOS1 = messageMapper.selectBySenderId(userId).stream().map(message -> {
+            MessageVO messageVO = new MessageVO();
+            messageVO.setId(message.getId());
+            messageVO.setSenderId(message.getSenderId());
+            messageVO.setReceiverId(message.getReceiverId());
+            messageVO.setGroupId(message.getGroupId());
+            messageVO.setContent(message.getContent());
+            messageVO.setMessageType(message.getMessageType());
+            messageVO.setSendAt(message.getSentAt());
+            messageVO.setIsRead(Boolean.TRUE);
+            return messageVO;
+        }).toList();
+        List<MessageVO> messageVOS2 = messageMapper.selectByReceiverId(userId).stream().map(message -> {
+            MessageVO messageVO = new MessageVO();
+            messageVO.setId(message.getId());
+            messageVO.setSenderId(message.getSenderId());
+            messageVO.setReceiverId(message.getReceiverId());
+            messageVO.setGroupId(message.getGroupId());
+            messageVO.setContent(message.getContent());
+            messageVO.setMessageType(message.getMessageType());
+            messageVO.setSendAt(message.getSentAt());
+            messageVO.setIsRead(messageStatusMapper.select(message.getId(),userId));
+            return messageVO;
+        }).toList();
+        List<MessageVO> messageVOS3 = messageMapper.selectGroupMessagesAsReceiver(userId).stream().map(message -> {
+            MessageVO messageVO = new MessageVO();
+            messageVO.setId(message.getId());
+            messageVO.setSenderId(message.getSenderId());
+            messageVO.setReceiverId(message.getReceiverId());
+            messageVO.setGroupId(message.getGroupId());
+            messageVO.setContent(message.getContent());
+            messageVO.setMessageType(message.getMessageType());
+            messageVO.setSendAt(message.getSentAt());
+            messageVO.setIsRead(messageStatusMapper.select(message.getId(),userId));
+            return messageVO;
+        }).toList();
+        List<MessageVO> messageVOS = new ArrayList<>();
+        messageVOS.addAll(messageVOS1);
+        messageVOS.addAll(messageVOS2);
+        messageVOS.addAll(messageVOS3);
+        return Result.success(messageVOS);
+    }
+}

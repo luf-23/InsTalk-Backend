@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 public interface GroupMember {
 
-    @Insert("insert into group_member (user_id,group_id,role) values (#{userId},#{groupId},'ADMIN')")
+    @Insert("insert into group_member (user_id,group_id,role) values (#{ownerId},#{groupId},'OWNER')")
     void addOwner(Long ownerId, Long groupId);
 
     @Select("SELECT * FROM group_member WHERE user_id = #{userId} AND group_id = #{groupId}")
