@@ -6,15 +6,17 @@ import org.instalkbackend.model.vo.Result;
 import java.util.List;
 
 public interface FriendshipService {
-    Result sendFriendshipRequest(String username);
+    Result sendFriendshipRequest(Long id);
 
-    Result acceptFriendshipRequest(String username);
+    Result acceptFriendshipRequest(Long id);
 
-    Result rejectFriendshipRequest(String username);
+    Result rejectFriendshipRequest(Long id);
 
-    Result deleteFriendship(String username);
+    Result deleteFriendship(Long id);
 
     Result<List<FriendVO>> getFriendList();
 
     Result<List<FriendVO>> getPendingList();
+
+    Result<List<FriendVO>> searchByUsername(String username);
 }

@@ -22,11 +22,9 @@ public class FriendshipServiceImpl implements FriendshipService {
     private UserMapper userMapper;
 
     @Override
-    public Result sendFriendshipRequest(String username) {
-        String myUsername = ThreadLocalUtil.getUsername();
-        if (myUsername.equals(username)) return Result.error("不能添加自己为好友");
-        Long myId = userMapper.selectByUsername(myUsername).getId();
-        Long id = userMapper.selectByUsername(username).getId();
+    public Result sendFriendshipRequest(Long id) {
+        Long myId = ThreadLocalUtil.getId();
+        if (myId == id) return Result.error("不能添加自己为好友");
         Long id1 = Math.min(myId,id);
         Long id2 = Math.max(myId,id);
         Friendship friendship = friendshipMapper.selectByUserId1AndUserId2(id1,id2);
@@ -40,11 +38,9 @@ public class FriendshipServiceImpl implements FriendshipService {
     }
 
     @Override
-    public Result acceptFriendshipRequest(String username) {
-        String myUsername = ThreadLocalUtil.getUsername();
-        if (myUsername.equals(username)) return Result.error("不能添加自己为好友");
-        Long myId = userMapper.selectByUsername(myUsername).getId();
-        Long id = userMapper.selectByUsername(username).getId();
+    public Result acceptFriendshipRequest(Long id) {
+        Long myId = ThreadLocalUtil.getId();
+        if (myId == id) return Result.error("不能添加自己为好友");
         Long id1 = Math.min(myId,id);
         Long id2 = Math.max(myId,id);
         Friendship friendship = friendshipMapper.selectByUserId1AndUserId2(id1,id2);
@@ -58,11 +54,9 @@ public class FriendshipServiceImpl implements FriendshipService {
     }
 
     @Override
-    public Result rejectFriendshipRequest(String username) {
-        String myUsername = ThreadLocalUtil.getUsername();
-        if (myUsername.equals(username)) return Result.error("操作失败");
-        Long myId = userMapper.selectByUsername(myUsername).getId();
-        Long id = userMapper.selectByUsername(username).getId();
+    public Result rejectFriendshipRequest(Long id) {
+        Long myId = ThreadLocalUtil.getId();
+        if (myId == id) return Result.error("操作失败");
         Long id1 = Math.min(myId,id);
         Long id2 = Math.max(myId,id);
         Friendship friendship = friendshipMapper.selectByUserId1AndUserId2(id1,id2);
@@ -76,11 +70,9 @@ public class FriendshipServiceImpl implements FriendshipService {
     }
 
     @Override
-    public Result deleteFriendship(String username) {
-        String myUsername = ThreadLocalUtil.getUsername();
-        if (myUsername.equals(username)) return Result.error("操作失败");
-        Long myId = userMapper.selectByUsername(myUsername).getId();
-        Long id = userMapper.selectByUsername(username).getId();
+    public Result deleteFriendship(Long id) {
+        Long myId = ThreadLocalUtil.getId();
+        if (myId == id) return Result.error("操作失败");
         Long id1 = Math.min(myId,id);
         Long id2 = Math.max(myId,id);
         Friendship friendship = friendshipMapper.selectByUserId1AndUserId2(id1,id2);
@@ -121,6 +113,19 @@ public class FriendshipServiceImpl implements FriendshipService {
             return friendVO;
         }).toList();
         return Result.success(pendingList);
+    }
+
+    @Override
+    public Result<List<FriendVO>> searchByUsername(String username) {
+        List<FriendVO> friendVOS = userMapper.selectByUsernameLike(username).stream().map(user -> {
+            FriendVO friendVO = new FriendVO();
+            friendVO.setId(user.getId());
+            friendVO.setUsername(user.getUsername());
+            friendVO.setNickname(user.getNickname());
+            friendVO.setAvatar(user.getAvatar());
+            return friendVO;
+        }).toList();
+        return Result.success(friendVOS);
     }
 
 }

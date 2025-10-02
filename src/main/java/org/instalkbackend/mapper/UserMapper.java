@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.instalkbackend.model.po.User;
+import org.instalkbackend.model.vo.FriendVO;
 
 import java.util.List;
 
@@ -38,4 +39,7 @@ public interface UserMapper {
             "</where>",
             "</script>"})
     List<User> selectByIds(@Param("list") List<Long> ids);
+
+    @Select("SELECT * FROM user WHERE username LIKE '%${username}%'")
+    List<User> selectByUsernameLike(String username);
 }

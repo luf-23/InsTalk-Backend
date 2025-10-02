@@ -18,31 +18,31 @@ public class FriendshipController {
     @Autowired
     private UserMapper userMapper;
     @PostMapping("/send")
-    public Result sendFriendshipRequest(@RequestParam String username) {
-        if (username == null) return Result.error("用户名为空");
-        if (userMapper.selectByUsername(username) == null) return Result.error("用户不存在");
-        return friendshipService.sendFriendshipRequest(username);
+    public Result sendFriendshipRequest(@RequestParam Long id) {
+        if (id == null) return Result.error("用户id为空");
+        if (userMapper.selectById( id) == null) return Result.error("用户不存在");
+        return friendshipService.sendFriendshipRequest(id);
     }
 
     @PostMapping("/accept")
-    public Result acceptFriendshipRequest(@RequestParam String username) {
-        if (username == null) return Result.error("用户名为空");
-        if (userMapper.selectByUsername(username) == null) return Result.error("用户不存在");
-        return friendshipService.acceptFriendshipRequest(username);
+    public Result acceptFriendshipRequest(@RequestParam Long id) {
+        if (id == null) return Result.error("用户id为空");
+        if (userMapper.selectById( id) == null) return Result.error("用户不存在");
+        return friendshipService.acceptFriendshipRequest(id);
     }
 
     @PostMapping("/reject")
-    public Result rejectFriendshipRequest(@RequestParam String username) {
-        if (username == null) return Result.error("用户名为空");
-        if (userMapper.selectByUsername(username) == null) return Result.error("用户不存在");
-        return friendshipService.rejectFriendshipRequest(username);
+    public Result rejectFriendshipRequest(@RequestParam Long id) {
+        if (id == null) return Result.error("用户id为空");
+        if (userMapper.selectById( id) == null) return Result.error("用户不存在");
+        return friendshipService.rejectFriendshipRequest(id);
     }
 
     @PostMapping("/delete")
-    public Result deleteFriendship(@RequestParam String username) {
-        if (username == null) return Result.error("用户名为空");
-        if (userMapper.selectByUsername(username) == null) return Result.error("用户不存在");
-        return friendshipService.deleteFriendship(username);
+    public Result deleteFriendship(@RequestParam Long id) {
+        if (id == null) return Result.error("用户id为空");
+        if (userMapper.selectById( id) == null) return Result.error("用户不存在");
+        return friendshipService.deleteFriendship(id);
     }
 
     @GetMapping("/friendList")
@@ -55,5 +55,9 @@ public class FriendshipController {
         return friendshipService.getPendingList();
     }
 
+    @GetMapping("/search")
+    public Result<List<FriendVO>> searchFriend(@RequestParam String username) {
+        return friendshipService.searchByUsername(username);
+    }
 
 }
