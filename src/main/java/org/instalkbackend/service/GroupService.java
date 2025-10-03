@@ -14,4 +14,6 @@ public interface GroupService {
     Result<List<GroupVO>> getMyGroupListAndMembers();
 
     Result<List<GroupVO>> getGroupListAndMembers();
+
+    Result<List<GroupVO>> search(String nameLike);
 }

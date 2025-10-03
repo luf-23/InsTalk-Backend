@@ -14,7 +14,6 @@ public class CorsConfig {
         // 添加CORS配置信息
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);//允许cookies
         config.addAllowedOrigin("http://localhost:5173/");
         config.addAllowedOrigin("http://localhost:5174/");
         config.addAllowedHeader("*");

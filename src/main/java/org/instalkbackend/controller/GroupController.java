@@ -36,4 +36,9 @@ public class GroupController {
         return groupService.getGroupListAndMembers();
     }
 
+    @GetMapping("/search")
+    public Result<List<GroupVO>> search(@RequestParam String nameLike){
+        return groupService.search(nameLike);
+    }
+
 }

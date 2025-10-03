@@ -4,5 +4,5 @@ import org.instalkbackend.model.po.User;
 import org.instalkbackend.model.vo.Result;
 
 public interface UserService {
-    Result<User> getInfo();
+    Result<User> getInfo(Long id);
 }

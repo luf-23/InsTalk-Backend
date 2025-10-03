@@ -74,4 +74,19 @@ public class GroupServiceImpl implements GroupService {
         }).toList();
         return Result.success(groupVOS);
     }
+
+    @Override
+    public Result<List<GroupVO>> search(String nameLike) {
+        List<GroupVO> groupVOS = chatGroupMapper.selectByNameLike(nameLike).stream().map(chatGroup -> {
+            GroupVO groupVO = new GroupVO();
+            groupVO.setId(chatGroup.getId());
+            groupVO.setName(chatGroup.getName());
+            groupVO.setDescription(chatGroup.getDescription());
+            groupVO.setOwnerId(chatGroup.getOwnerId());
+            groupVO.setCreatedAt(chatGroup.getCreatedAt());
+            groupVO.setMembers(groupMemberMapper.selectMembersByGroupId(chatGroup.getId()));
+            return groupVO;
+        }).toList();
+        return Result.success(groupVOS);
+    }
 }

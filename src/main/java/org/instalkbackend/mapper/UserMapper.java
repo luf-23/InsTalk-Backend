@@ -40,6 +40,6 @@ public interface UserMapper {
             "</script>"})
     List<User> selectByIds(@Param("list") List<Long> ids);
 
-    @Select("SELECT * FROM user WHERE username LIKE '%${username}%'")
+    @Select("SELECT * FROM user WHERE username LIKE CONCAT('%',#{username},'%')")
     List<User> selectByUsernameLike(String username);
 }

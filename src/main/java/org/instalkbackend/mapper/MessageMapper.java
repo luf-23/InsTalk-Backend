@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper
 public interface MessageMapper {
 
-    @Insert("insert into message (sender_id,receiver_id,content,message_type) values (#{senderId},#{receiverId},#{content},#{sendMessageDTO.messageType})")
+    @Insert("insert into message (sender_id,receiver_id,content,message_type) values (#{senderId},#{receiverId},#{content},#{messageType})")
     @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
     void addPrivateMessage(Message message);
 
