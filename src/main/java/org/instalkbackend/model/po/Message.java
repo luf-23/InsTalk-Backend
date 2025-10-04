@@ -2,7 +2,7 @@ package org.instalkbackend.model.po;
 
 import lombok.Data;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 public class Message {
@@ -12,5 +12,5 @@ public class Message {
     private Long groupId;
     private String content;
     private String messageType;
-    private LocalTime sentAt;
+    private LocalDateTime sentAt;
 }

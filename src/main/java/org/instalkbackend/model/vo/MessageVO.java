@@ -2,7 +2,7 @@ package org.instalkbackend.model.vo;
 
 import lombok.Data;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 public class MessageVO {
@@ -12,7 +12,7 @@ public class MessageVO {
     private Long groupId;
     private String content;
     private String messageType;
-    private LocalTime sendAt;
+    private LocalDateTime sendAt;
     private Boolean isRead;
     //1.senderId为自己
     //2.receiverId为自己
