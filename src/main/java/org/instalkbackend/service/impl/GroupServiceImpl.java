@@ -52,6 +52,7 @@ public class GroupServiceImpl implements GroupService {
             groupVO.setDescription(chatGroup.getDescription());
             groupVO.setOwnerId(chatGroup.getOwnerId());
             groupVO.setCreatedAt(chatGroup.getCreatedAt());
+            groupVO.setAdminIds(groupMemberMapper.selectAdminIdsByGroupId(chatGroup.getId()));
             groupVO.setMembers(groupMemberMapper.selectMembersByGroupId(chatGroup.getId()));
             return groupVO;
         }).toList();
@@ -69,6 +70,7 @@ public class GroupServiceImpl implements GroupService {
             groupVO.setDescription(chatGroup.getDescription());
             groupVO.setOwnerId(chatGroup.getOwnerId());
             groupVO.setCreatedAt(chatGroup.getCreatedAt());
+            groupVO.setAdminIds(groupMemberMapper.selectAdminIdsByGroupId(groupId));
             groupVO.setMembers(groupMemberMapper.selectMembersByGroupId(groupId));
             return groupVO;
         }).toList();
@@ -84,6 +86,7 @@ public class GroupServiceImpl implements GroupService {
             groupVO.setDescription(chatGroup.getDescription());
             groupVO.setOwnerId(chatGroup.getOwnerId());
             groupVO.setCreatedAt(chatGroup.getCreatedAt());
+            groupVO.setAdminIds(groupMemberMapper.selectAdminIdsByGroupId(chatGroup.getId()));
             groupVO.setMembers(groupMemberMapper.selectMembersByGroupId(chatGroup.getId()));
             return groupVO;
         }).toList();

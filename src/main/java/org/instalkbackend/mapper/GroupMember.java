@@ -24,4 +24,7 @@ public interface GroupMember {
 
     @Select("SELECT group_id FROM group_member WHERE user_id=#{userId}")
     List<Long> selectGroupIdIfIam(Long userId);
+
+    @Select("SELECT user_id FROM group_member WHERE group_id = #{id} AND role = 'ADMIN'")
+    List<Long> selectAdminIdsByGroupId(Long id);
 }
