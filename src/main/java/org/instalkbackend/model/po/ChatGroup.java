@@ -9,6 +9,7 @@ public class ChatGroup {
     private Long id;
     private String name;
     private String description;
+    private String avatar;
     private Long ownerId;
     private LocalDateTime createdAt;
 }

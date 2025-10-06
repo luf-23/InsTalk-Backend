@@ -37,7 +37,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Result joinGroup(Long groupId) {
         Long userId = ThreadLocalUtil.getId();
-        if (!groupMemberMapper.select(userId, groupId)) return Result.error("您已加入该群");
+        if (groupMemberMapper.select(userId, groupId)!=null) return Result.error("您已加入该群");
         groupMemberMapper.addMember(userId, groupId);
         return Result.success();
     }
@@ -50,6 +50,7 @@ public class GroupServiceImpl implements GroupService {
             groupVO.setId(chatGroup.getId());
             groupVO.setName(chatGroup.getName());
             groupVO.setDescription(chatGroup.getDescription());
+            groupVO.setAvatar(chatGroup.getAvatar());
             groupVO.setOwnerId(chatGroup.getOwnerId());
             groupVO.setCreatedAt(chatGroup.getCreatedAt());
             groupVO.setAdminIds(groupMemberMapper.selectAdminIdsByGroupId(chatGroup.getId()));
@@ -68,6 +69,7 @@ public class GroupServiceImpl implements GroupService {
             ChatGroup chatGroup = chatGroupMapper.selectById(groupId);
             groupVO.setName(chatGroup.getName());
             groupVO.setDescription(chatGroup.getDescription());
+            groupVO.setAvatar(chatGroup.getAvatar());
             groupVO.setOwnerId(chatGroup.getOwnerId());
             groupVO.setCreatedAt(chatGroup.getCreatedAt());
             groupVO.setAdminIds(groupMemberMapper.selectAdminIdsByGroupId(groupId));
@@ -84,6 +86,7 @@ public class GroupServiceImpl implements GroupService {
             groupVO.setId(chatGroup.getId());
             groupVO.setName(chatGroup.getName());
             groupVO.setDescription(chatGroup.getDescription());
+            groupVO.setAvatar(chatGroup.getAvatar());
             groupVO.setOwnerId(chatGroup.getOwnerId());
             groupVO.setCreatedAt(chatGroup.getCreatedAt());
             groupVO.setAdminIds(groupMemberMapper.selectAdminIdsByGroupId(chatGroup.getId()));

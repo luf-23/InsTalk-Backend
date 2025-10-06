@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS user (
                                      password VARCHAR(255) NOT NULL,
                                      email VARCHAR(100) UNIQUE,
                                      nickname VARCHAR(50),
-                                     avatar VARCHAR(255),
+                                     avatar VARCHAR(255) DEFAULT 'https://luf-23.oss-cn-wuhan-lr.aliyuncs.com/ins_talk/defaultUserAvatar.png',
                                      role ENUM('USER', 'ADMIN') DEFAULT 'USER',
                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS chat_group (
                                            name VARCHAR(100) NOT NULL,
                                            description TEXT,
                                            owner_id BIGINT NOT NULL,
+                                           avatar VARCHAR(255) DEFAULT 'https://luf-23.oss-cn-wuhan-lr.aliyuncs.com/ins_talk/defaultGroupAvatar.png',
                                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                            FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=100001;

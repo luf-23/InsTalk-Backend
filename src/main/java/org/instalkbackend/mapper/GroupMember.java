@@ -14,7 +14,7 @@ public interface GroupMember {
     void addOwner(Long ownerId, Long groupId);
 
     @Select("SELECT * FROM group_member WHERE user_id = #{userId} AND group_id = #{groupId}")
-    boolean select(Long userId, Long groupId);
+    GroupMember select(Long userId, Long groupId);
 
     @Insert("insert into group_member (user_id,group_id) values (#{userId},#{groupId})")
     void addMember(Long userId, Long groupId);
