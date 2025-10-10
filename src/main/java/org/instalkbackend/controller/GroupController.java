@@ -21,7 +21,7 @@ public class GroupController {
         return groupService.createGroup(groupDTO);
     }
 
-    @PostMapping("join")
+    @PostMapping("/join")
     public Result joinGroup(@RequestParam Long groupId){
         return groupService.joinGroup(groupId);
     }

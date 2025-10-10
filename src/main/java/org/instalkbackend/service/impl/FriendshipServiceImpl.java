@@ -95,6 +95,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             friendVO.setUsername(user.getUsername());
             friendVO.setNickname(user.getNickname());
             friendVO.setAvatar(user.getAvatar());
+            friendVO.setCreatedAt(user.getCreatedAt());
             return friendVO;
         }).toList();
         return Result.success(friendList);
@@ -110,6 +111,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             friendVO.setUsername(user.getUsername());
             friendVO.setNickname(user.getNickname());
             friendVO.setAvatar(user.getAvatar());
+            friendVO.setCreatedAt(user.getCreatedAt());
             return friendVO;
         }).toList();
         return Result.success(pendingList);
@@ -123,6 +125,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             friendVO.setUsername(user.getUsername());
             friendVO.setNickname(user.getNickname());
             friendVO.setAvatar(user.getAvatar());
+            friendVO.setCreatedAt(user.getCreatedAt());
             return friendVO;
         }).toList();
         return Result.success(friendVOS);

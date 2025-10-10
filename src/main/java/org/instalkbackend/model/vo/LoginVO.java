@@ -2,6 +2,9 @@ package org.instalkbackend.model.vo;
 
 import lombok.Data;
 import org.instalkbackend.model.po.User;
+
+import java.time.LocalDateTime;
+
 //auth/login
 @Data
 public class LoginVO {
@@ -11,6 +14,7 @@ public class LoginVO {
     private String email;
     private String avatar;
     private String role;
+    private LocalDateTime createdAt;
     private String accessToken;
     private String refreshToken;
 
@@ -21,8 +25,8 @@ public class LoginVO {
         this.email = user.getEmail();
         this.avatar = user.getAvatar();
         this.role = user.getRole();
+        this.createdAt = user.getCreatedAt();
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
     }
-
 }
