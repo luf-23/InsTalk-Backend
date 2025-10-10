@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class FriendVO {
     private Long id;
     private String username;
-    private String nickname;
+    private String signature;
     private String avatar;
     private LocalDateTime createdAt;
 }

@@ -93,7 +93,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             FriendVO friendVO = new FriendVO();
             friendVO.setId(user.getId());
             friendVO.setUsername(user.getUsername());
-            friendVO.setNickname(user.getNickname());
+            friendVO.setSignature(user.getSignature());
             friendVO.setAvatar(user.getAvatar());
             friendVO.setCreatedAt(user.getCreatedAt());
             return friendVO;
@@ -109,7 +109,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             FriendVO friendVO = new FriendVO();
             friendVO.setId(user.getId());
             friendVO.setUsername(user.getUsername());
-            friendVO.setNickname(user.getNickname());
+            friendVO.setSignature(user.getSignature());
             friendVO.setAvatar(user.getAvatar());
             friendVO.setCreatedAt(user.getCreatedAt());
             return friendVO;
@@ -123,7 +123,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             FriendVO friendVO = new FriendVO();
             friendVO.setId(user.getId());
             friendVO.setUsername(user.getUsername());
-            friendVO.setNickname(user.getNickname());
+            friendVO.setSignature(user.getSignature());
             friendVO.setAvatar(user.getAvatar());
             friendVO.setCreatedAt(user.getCreatedAt());
             return friendVO;

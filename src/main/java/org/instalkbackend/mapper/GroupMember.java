@@ -19,7 +19,7 @@ public interface GroupMember {
     @Insert("insert into group_member (user_id,group_id) values (#{userId},#{groupId})")
     void addMember(Long userId, Long groupId);
 
-    @Select("SELECT id,username,nickname,avatar FROM user WHERE id IN (SELECT user_id FROM group_member WHERE group_id = #{id})")
+    @Select("SELECT id,username,signature,avatar FROM user WHERE id IN (SELECT user_id FROM group_member WHERE group_id = #{id})")
     List<GroupVO.Member> selectMembersByGroupId(Long id);
 
     @Select("SELECT group_id FROM group_member WHERE user_id=#{userId}")

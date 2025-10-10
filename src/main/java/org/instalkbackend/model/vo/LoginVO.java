@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class LoginVO {
     private Long id;
     private String username;
-    private String nickname;
+    private String signature;
     private String email;
     private String avatar;
     private String role;
@@ -21,7 +21,7 @@ public class LoginVO {
     public LoginVO(User user,String accessToken,String refreshToken){
         this.id = user.getId();
         this.username = user.getUsername();
-        this.nickname = user.getNickname();
+        this.signature = user.getSignature();
         this.email = user.getEmail();
         this.avatar = user.getAvatar();
         this.role = user.getRole();

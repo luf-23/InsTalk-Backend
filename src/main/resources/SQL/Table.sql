@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS user (
                                      username VARCHAR(50) UNIQUE NOT NULL,
                                      password VARCHAR(255) NOT NULL,
                                      email VARCHAR(100) UNIQUE,
-                                     nickname VARCHAR(50),
+                                     signature VARCHAR(255) DEFAULT '这家伙很懒，什么都留下...',
                                      avatar VARCHAR(255) DEFAULT 'https://luf-23.oss-cn-wuhan-lr.aliyuncs.com/ins_talk/defaultUserAvatar.png',
                                      role ENUM('USER', 'ADMIN') DEFAULT 'USER',
                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS friendship (
                                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                            user_id1 BIGINT NOT NULL, -- 小id
                                            user_id2 BIGINT NOT NULL, -- 大id
+                                           requester_id BIGINT, -- 发起请求的用户id
                                            status ENUM('PENDING', 'ACCEPTED', 'BLOCKED') DEFAULT 'PENDING',
                                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                            FOREIGN KEY (user_id1) REFERENCES user(id) ON DELETE CASCADE,
