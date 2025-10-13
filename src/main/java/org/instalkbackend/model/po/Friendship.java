@@ -9,6 +9,7 @@ public class Friendship {
     private Long id;
     private Long userId1;
     private Long userId2;
+    private Long requesterId;
     private String status;
     private LocalDateTime createdAt;
 }

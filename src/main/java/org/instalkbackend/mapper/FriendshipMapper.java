@@ -11,8 +11,8 @@ public interface FriendshipMapper {
     @Select("SELECT * FROM friendship WHERE user_id1 = #{id1} AND user_id2 = #{id2}")
     Friendship selectByUserId1AndUserId2(Long id1, Long id2);
 
-    @Insert("insert into friendship (user_id1,user_id2) values (#{id1},#{id2})")
-    void addRequest(Long id1, Long id2);
+    @Insert("insert into friendship (user_id1,user_id2,requester_id) values (#{id1},#{id2},#{myId})")
+    void addRequest(Long id1, Long id2,Long myId);
 
     @Update("update friendship set status = 'ACCEPTED' WHERE user_id1= #{id1} AND user_id2= #{id2} AND status = 'PENDING'")
     void acceptRequest(Long id1, Long id2);
@@ -32,9 +32,9 @@ public interface FriendshipMapper {
     List<Long> selectFriendsId(Long myId);
 
     @Select("SELECT user_id2 FROM friendship " +
-            "WHERE status = 'PENDING' AND user_id1 = #{myId}" +
+            "WHERE status = 'PENDING' AND user_id1 = #{myId} AND requester_id != #{myId}" +
             " UNION " +
             "SELECT user_id1 FROM friendship " +
-            "WHERE status = 'PENDING' AND user_id2 = #{myId}")
+            "WHERE status = 'PENDING' AND user_id2 = #{myId} AND requester_id != #{myId}")
     List<Long> selectPendingId(Long myId);
 }

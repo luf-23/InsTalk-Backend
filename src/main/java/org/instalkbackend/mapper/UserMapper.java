@@ -1,9 +1,6 @@
 package org.instalkbackend.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.instalkbackend.model.po.User;
 import org.instalkbackend.model.vo.FriendVO;
 
@@ -42,4 +39,7 @@ public interface UserMapper {
 
     @Select("SELECT * FROM user WHERE username LIKE CONCAT('%',#{username},'%')")
     List<User> selectByUsernameLike(String username);
+
+    @Update("update user set username = #{username},email = #{email},password = #{password},signature = #{signature},avatar = #{avatar} where id = #{id}")
+    void update(User newUser);
 }

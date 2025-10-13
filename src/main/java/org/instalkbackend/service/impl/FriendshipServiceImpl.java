@@ -33,7 +33,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             else if (friendship.getStatus().equals("BLOCKED")) return Result.error("你已被拉入黑名单或对方被你拉入了黑名单");
             else return Result.error("已经是好友");
         }
-        friendshipMapper.addRequest(id1,id2);
+        friendshipMapper.addRequest(id1,id2,myId);
         return Result.success();
     }
 
@@ -46,6 +46,7 @@ public class FriendshipServiceImpl implements FriendshipService {
         Friendship friendship = friendshipMapper.selectByUserId1AndUserId2(id1,id2);
         if (friendship == null) return Result.error("好友申请不存在");
         else{
+            if (friendship.getRequesterId()==myId) return Result.error("操作失败");
             if (friendship.getStatus().equals("BLOCKED")) return Result.error("你已被拉入黑名单或对方被你拉入了黑名单");
             else if (friendship.getStatus().equals("ACCEPTED")) return Result.error("已经是好友");
         }
@@ -62,6 +63,7 @@ public class FriendshipServiceImpl implements FriendshipService {
         Friendship friendship = friendshipMapper.selectByUserId1AndUserId2(id1,id2);
         if (friendship == null) return Result.error("好友申请不存在");
         else{
+            if (friendship.getRequesterId()==myId) return Result.error("操作失败");
             if (friendship.getStatus().equals("ACCEPTED")) return Result.error("已经是好友");
             else if (friendship.getStatus().equals("BLOCKED")) return Result.error("你已被拉入黑名单或对方被你拉入了黑名单");
         }
