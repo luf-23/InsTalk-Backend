@@ -1,14 +1,26 @@
 package org.instalkbackend.model.vo;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.instalkbackend.model.po.User;
 
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor
 public class FriendVO {
     private Long id;
     private String username;
     private String signature;
     private String avatar;
     private LocalDateTime createdAt;
+
+    public FriendVO(User user,LocalDateTime createdAt){
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.signature = user.getSignature();
+        this.avatar = user.getAvatar();
+        this.createdAt = createdAt;
+    }
+
 }

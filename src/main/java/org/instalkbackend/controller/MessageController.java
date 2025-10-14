@@ -17,7 +17,7 @@ public class MessageController {
     private MessageService messageService;
 
     @PostMapping("/send")
-    public Result sendMessage(@RequestBody MessageDTO messageDTO){
+    public Result<MessageVO> sendMessage(@RequestBody MessageDTO messageDTO){
         if (messageDTO == null) return Result.error("参数为空");
         return messageService.sendMessage(messageDTO);
     }

@@ -7,9 +7,9 @@ import org.instalkbackend.model.vo.Result;
 import java.util.List;
 
 public interface GroupService {
-    Result createGroup(GroupDTO groupDTO);
+    Result<GroupVO> createGroup(GroupDTO groupDTO);
 
-    Result joinGroup(Long groupId);
+    Result<GroupVO> joinGroup(Long groupId);
 
     Result<List<GroupVO>> getMyGroupListAndMembers();
 

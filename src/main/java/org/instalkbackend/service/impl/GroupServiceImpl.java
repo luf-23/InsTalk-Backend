@@ -1,7 +1,7 @@
 package org.instalkbackend.service.impl;
 
 import org.instalkbackend.mapper.ChatGroupMapper;
-import org.instalkbackend.mapper.GroupMember;
+import org.instalkbackend.mapper.GroupMemberMapper;
 import org.instalkbackend.model.dto.GroupDTO;
 import org.instalkbackend.model.po.ChatGroup;
 import org.instalkbackend.model.vo.GroupVO;
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class GroupServiceImpl implements GroupService {
@@ -20,10 +19,10 @@ public class GroupServiceImpl implements GroupService {
     @Autowired
     private ChatGroupMapper chatGroupMapper;
     @Autowired
-    private GroupMember groupMemberMapper;
+    private GroupMemberMapper groupMemberMapper;
 
     @Override
-    public Result createGroup(GroupDTO groupDTO) {
+    public Result<GroupVO> createGroup(GroupDTO groupDTO) {
         Long ownerId = ThreadLocalUtil.getId();
         ChatGroup chatGroup = new ChatGroup();
         chatGroup.setName(groupDTO.getName());
@@ -31,15 +30,17 @@ public class GroupServiceImpl implements GroupService {
         chatGroup.setOwnerId(ownerId);
         chatGroupMapper.add(chatGroup);
         groupMemberMapper.addOwner(ownerId, chatGroup.getId());
-        return Result.success();
+        GroupVO groupVO = new GroupVO(chatGroupMapper.selectById(chatGroup.getId()), groupMemberMapper.selectAdminIdsByGroupId(chatGroup.getId()), groupMemberMapper.selectMembersByGroupId(chatGroup.getId()));
+        return Result.success(groupVO);
     }
 
     @Override
-    public Result joinGroup(Long groupId) {
+    public Result<GroupVO> joinGroup(Long groupId) {
         Long userId = ThreadLocalUtil.getId();
         if (groupMemberMapper.select(userId, groupId)!=null) return Result.error("您已加入该群");
         groupMemberMapper.addMember(userId, groupId);
-        return Result.success();
+        GroupVO groupVO = new GroupVO(chatGroupMapper.selectById(groupId), groupMemberMapper.selectAdminIdsByGroupId(groupId), groupMemberMapper.selectMembersByGroupId(groupId));
+        return Result.success(groupVO);
     }
 
     @Override

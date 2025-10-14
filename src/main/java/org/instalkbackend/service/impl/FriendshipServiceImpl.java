@@ -3,6 +3,7 @@ package org.instalkbackend.service.impl;
 import org.instalkbackend.mapper.FriendshipMapper;
 import org.instalkbackend.mapper.UserMapper;
 import org.instalkbackend.model.po.Friendship;
+import org.instalkbackend.model.po.User;
 import org.instalkbackend.model.vo.FriendVO;
 import org.instalkbackend.model.vo.Result;
 import org.instalkbackend.service.FriendshipService;
@@ -38,7 +39,7 @@ public class FriendshipServiceImpl implements FriendshipService {
     }
 
     @Override
-    public Result acceptFriendshipRequest(Long id) {
+    public Result<FriendVO> acceptFriendshipRequest(Long id) {
         Long myId = ThreadLocalUtil.getId();
         if (myId == id) return Result.error("不能添加自己为好友");
         Long id1 = Math.min(myId,id);
@@ -51,7 +52,9 @@ public class FriendshipServiceImpl implements FriendshipService {
             else if (friendship.getStatus().equals("ACCEPTED")) return Result.error("已经是好友");
         }
         friendshipMapper.acceptRequest(id1,id2);
-        return Result.success();
+        User friendInfo = userMapper.selectById(id);
+        FriendVO friendVO = new FriendVO(friendInfo,friendship.getCreatedAt());
+        return Result.success(friendVO);
     }
 
     @Override

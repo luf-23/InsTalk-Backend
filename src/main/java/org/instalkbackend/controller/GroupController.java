@@ -17,12 +17,12 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping("/create")
-    public Result createGroup(@RequestBody GroupDTO groupDTO){
+    public Result<GroupVO> createGroup(@RequestBody GroupDTO groupDTO){
         return groupService.createGroup(groupDTO);
     }
 
     @PostMapping("/join")
-    public Result joinGroup(@RequestParam Long groupId){
+    public Result<GroupVO> joinGroup(@RequestParam Long groupId){
         return groupService.joinGroup(groupId);
     }
 

@@ -8,7 +8,7 @@ import java.util.List;
 public interface FriendshipService {
     Result sendFriendshipRequest(Long id);
 
-    Result acceptFriendshipRequest(Long id);
+    Result<FriendVO> acceptFriendshipRequest(Long id);
 
     Result rejectFriendshipRequest(Long id);
 

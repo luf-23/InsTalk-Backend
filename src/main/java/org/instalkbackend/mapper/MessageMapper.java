@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 import org.instalkbackend.model.po.Message;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -27,4 +28,7 @@ public interface MessageMapper {
 
     @Select("select * from message where sender_id != #{userId} and group_id in (select group_id from group_member where user_id=#{userId} )")
     List<Message> selectGroupMessagesAsReceiver(Long userId);
+
+    @Select("select sent_at from message where id = #{id}")
+    LocalDateTime selectSentAtById(Long id);
 }

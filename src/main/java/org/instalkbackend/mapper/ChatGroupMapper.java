@@ -10,8 +10,6 @@ import java.util.List;
 @Mapper
 public interface ChatGroupMapper {
 
-
-
     @Select("SELECT * FROM chat_group WHERE owner_id = #{userId}")
     List<ChatGroup> selectByOwnerId(Long userId);
 

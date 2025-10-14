@@ -25,7 +25,7 @@ public class FriendshipController {
     }
 
     @PostMapping("/accept")
-    public Result acceptFriendshipRequest(@RequestParam Long id) {
+    public Result<FriendVO> acceptFriendshipRequest(@RequestParam Long id) {
         if (id == null) return Result.error("用户id为空");
         if (userMapper.selectById( id) == null) return Result.error("用户不存在");
         return friendshipService.acceptFriendshipRequest(id);

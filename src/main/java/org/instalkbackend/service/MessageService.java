@@ -7,7 +7,7 @@ import org.instalkbackend.model.vo.Result;
 import java.util.List;
 
 public interface MessageService {
-    Result sendMessage(MessageDTO messageDTO);
+    Result<MessageVO> sendMessage(MessageDTO messageDTO);
 
     Result<List<MessageVO>> getMessageList();
 }

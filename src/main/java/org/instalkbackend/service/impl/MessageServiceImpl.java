@@ -1,6 +1,7 @@
 package org.instalkbackend.service.impl;
 
-import org.instalkbackend.mapper.GroupMember;
+import org.instalkbackend.mapper.FriendshipMapper;
+import org.instalkbackend.mapper.GroupMemberMapper;
 import org.instalkbackend.mapper.MessageMapper;
 import org.instalkbackend.mapper.MessageStatusMapper;
 import org.instalkbackend.model.dto.MessageDTO;
@@ -24,10 +25,12 @@ public class MessageServiceImpl implements MessageService {
     @Autowired
     private MessageStatusMapper messageStatusMapper;
     @Autowired
-    private GroupMember groupMemberMapper;
+    private GroupMemberMapper groupMemberMapper;
+    @Autowired
+    private FriendshipMapper friendshipMapper;
 
     @Override
-    public Result sendMessage(MessageDTO messageDTO) {
+    public Result<MessageVO> sendMessage(MessageDTO messageDTO) {
         Long senderId = ThreadLocalUtil.getId();
         Message message = new Message();
         message.setSenderId(senderId);
@@ -36,11 +39,17 @@ public class MessageServiceImpl implements MessageService {
         message.setReceiverId(messageDTO.getReceiverId());
         message.setGroupId(messageDTO.getGroupId());
 
-        if (messageDTO.getReceiverId()!= null){
+        if (message.getReceiverId()!= null){
+            if (!friendshipMapper.selectByUserId1AndUserId2(senderId,message.getReceiverId()).getStatus().equals("ACCEPTED")){
+                return Result.error("请先添加对方为好友");
+            }
             messageMapper.addPrivateMessage(message);
             messageStatusMapper.add(message.getId(),message.getReceiverId());
         }
-        if (messageDTO.getGroupId()!= null){
+        if (message.getGroupId()!= null){
+            if(groupMemberMapper.select(senderId,message.getGroupId())== null){
+                return Result.error("您不是群成员");
+            }
             messageMapper.addGroupMessage(message);
             List<GroupVO.Member> receiverIds = groupMemberMapper.selectMembersByGroupId(message.getGroupId());
             for (GroupVO.Member member : receiverIds) {
@@ -48,7 +57,9 @@ public class MessageServiceImpl implements MessageService {
                 messageStatusMapper.add(message.getId(),member.getId());
             }
         }
-        return Result.success();
+        message.setSentAt(messageMapper.selectSentAtById(message.getId()));
+        MessageVO messageVO = new MessageVO(message,Boolean.TRUE);
+        return Result.success(messageVO);
     }
 
     @Override
@@ -62,7 +73,7 @@ public class MessageServiceImpl implements MessageService {
             messageVO.setGroupId(message.getGroupId());
             messageVO.setContent(message.getContent());
             messageVO.setMessageType(message.getMessageType());
-            messageVO.setSendAt(message.getSentAt());
+            messageVO.setSentAt(message.getSentAt());
             messageVO.setIsRead(Boolean.TRUE);
             return messageVO;
         }).toList();
@@ -74,7 +85,7 @@ public class MessageServiceImpl implements MessageService {
             messageVO.setGroupId(message.getGroupId());
             messageVO.setContent(message.getContent());
             messageVO.setMessageType(message.getMessageType());
-            messageVO.setSendAt(message.getSentAt());
+            messageVO.setSentAt(message.getSentAt());
             messageVO.setIsRead(messageStatusMapper.select(message.getId(),userId));
             return messageVO;
         }).toList();
@@ -86,7 +97,7 @@ public class MessageServiceImpl implements MessageService {
             messageVO.setGroupId(message.getGroupId());
             messageVO.setContent(message.getContent());
             messageVO.setMessageType(message.getMessageType());
-            messageVO.setSendAt(message.getSentAt());
+            messageVO.setSentAt(message.getSentAt());
             messageVO.setIsRead(messageStatusMapper.select(message.getId(),userId));
             return messageVO;
         }).toList();
