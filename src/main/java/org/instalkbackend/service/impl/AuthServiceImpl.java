@@ -16,6 +16,7 @@ import org.instalkbackend.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -56,7 +57,7 @@ public class AuthServiceImpl implements AuthService {
             claims = JwtUtil.parseToken(refreshToken);
         }catch(Exception e){
             response.setStatus(401);
-            return Result.error("登录过期");
+            return Result.error("token刷新失败");
         }
         String jti = (String) claims.get("jti");
         tokenUtil.add(jti);

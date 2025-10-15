@@ -41,4 +41,9 @@ public class GroupController {
         return groupService.search(nameLike);
     }
 
+    @PostMapping("/update")
+    public Result update(@RequestBody GroupDTO groupDTO){
+        if (groupDTO==null || groupDTO.getId()==null) return Result.error("参数错误");
+        return groupService.update(groupDTO);
+    }
 }

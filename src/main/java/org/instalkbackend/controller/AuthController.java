@@ -34,7 +34,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public Result<RefreshVO> refresh(@RequestBody String refreshToken, HttpServletResponse response){
+    public Result<RefreshVO> refresh(@RequestBody Map<String,String> requestBody, HttpServletResponse response){
+        String refreshToken = requestBody.get("refreshToken");
         return authService.refresh(refreshToken,response);
     }
 

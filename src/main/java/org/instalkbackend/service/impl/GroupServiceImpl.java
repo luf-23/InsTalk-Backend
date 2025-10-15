@@ -28,6 +28,7 @@ public class GroupServiceImpl implements GroupService {
         chatGroup.setName(groupDTO.getName());
         chatGroup.setDescription(groupDTO.getDescription());
         chatGroup.setOwnerId(ownerId);
+        chatGroup.setAvatar(groupDTO.getAvatar());
         chatGroupMapper.add(chatGroup);
         groupMemberMapper.addOwner(ownerId, chatGroup.getId());
         GroupVO groupVO = new GroupVO(chatGroupMapper.selectById(chatGroup.getId()), groupMemberMapper.selectAdminIdsByGroupId(chatGroup.getId()), groupMemberMapper.selectMembersByGroupId(chatGroup.getId()));
@@ -95,5 +96,13 @@ public class GroupServiceImpl implements GroupService {
             return groupVO;
         }).toList();
         return Result.success(groupVOS);
+    }
+
+    @Override
+    public Result update(GroupDTO groupDTO) {
+        ChatGroup chatGroup = chatGroupMapper.selectById(groupDTO.getId());
+        ChatGroup newChatGroup = new ChatGroup(chatGroup,groupDTO);
+        chatGroupMapper.update(newChatGroup);
+        return Result.success();
     }
 }
