@@ -40,7 +40,7 @@ public class MessageServiceImpl implements MessageService {
         message.setGroupId(messageDTO.getGroupId());
 
         if (message.getReceiverId()!= null){
-            if (!friendshipMapper.selectByUserId1AndUserId2(senderId,message.getReceiverId()).getStatus().equals("ACCEPTED")){
+            if (!friendshipMapper.selectByUserId1AndUserId2(Long.min(senderId,message.getReceiverId()),Long.max(senderId,message.getReceiverId())).getStatus().equals("ACCEPTED")){
                 return Result.error("请先添加对方为好友");
             }
             messageMapper.addPrivateMessage(message);
@@ -105,6 +105,39 @@ public class MessageServiceImpl implements MessageService {
         messageVOS.addAll(messageVOS1);
         messageVOS.addAll(messageVOS2);
         messageVOS.addAll(messageVOS3);
+        return Result.success(messageVOS);
+    }
+
+    @Override
+    public Result<List<MessageVO>> getNewMessageList(Long messageId) {
+        Long userId = ThreadLocalUtil.getId();
+        List<MessageVO> messageVOS1 = messageMapper.selectNewByReceiverId(userId,messageId).stream().map(message -> {
+            MessageVO messageVO = new MessageVO();
+            messageVO.setId(message.getId());
+            messageVO.setSenderId(message.getSenderId());
+            messageVO.setReceiverId(message.getReceiverId());
+            messageVO.setGroupId(message.getGroupId());
+            messageVO.setContent(message.getContent());
+            messageVO.setMessageType(message.getMessageType());
+            messageVO.setSentAt(message.getSentAt());
+            messageVO.setIsRead(messageStatusMapper.select(message.getId(),userId));
+            return messageVO;
+        }).toList();
+        List<MessageVO> messageVOS2 = messageMapper.selectNewGroupMessagesAsReceiver(userId,messageId).stream().map(message -> {
+            MessageVO messageVO = new MessageVO();
+            messageVO.setId(message.getId());
+            messageVO.setSenderId(message.getSenderId());
+            messageVO.setReceiverId(message.getReceiverId());
+            messageVO.setGroupId(message.getGroupId());
+            messageVO.setContent(message.getContent());
+            messageVO.setMessageType(message.getMessageType());
+            messageVO.setSentAt(message.getSentAt());
+            messageVO.setIsRead(messageStatusMapper.select(message.getId(),userId));
+            return messageVO;
+        }).toList();
+        List<MessageVO> messageVOS = new ArrayList<>();
+        messageVOS.addAll(messageVOS1);
+        messageVOS.addAll(messageVOS2);
         return Result.success(messageVOS);
     }
 }

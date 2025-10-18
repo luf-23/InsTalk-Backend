@@ -10,4 +10,6 @@ public interface MessageService {
     Result<MessageVO> sendMessage(MessageDTO messageDTO);
 
     Result<List<MessageVO>> getMessageList();
+
+    Result<List<MessageVO>> getNewMessageList(Long messageId);
 }
