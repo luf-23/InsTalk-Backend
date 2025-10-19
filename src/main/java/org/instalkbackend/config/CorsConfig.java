@@ -16,6 +16,9 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("http://localhost:5173/");
         config.addAllowedOrigin("http://localhost:5174/");
+        config.addAllowedOrigin("http://43.142.2.253/");
+        config.addAllowedOrigin("http://luf.woyioii.cn/");
+        config.addAllowedOrigin("http://192.168.159.105:5173/");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         config.setMaxAge(1800L); // 预检请求的缓存时间（秒）

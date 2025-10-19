@@ -37,7 +37,7 @@ public class MessageController {
 
     @PostMapping("/newMessageList")
     public Result<List<MessageVO>> getNewMessageList(@RequestBody MessageVO lastMessage){
-        if (lastMessage == null) Result.error("参数错误");
+        if (lastMessage == null) Result.success();
         Long myId = ThreadLocalUtil.getId();
         if (lastMessage.getSenderId()!=myId &&
                 lastMessage.getReceiverId()!=myId &&
