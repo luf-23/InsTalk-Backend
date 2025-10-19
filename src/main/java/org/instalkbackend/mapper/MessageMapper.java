@@ -13,6 +13,9 @@ import java.util.List;
 @Mapper
 public interface MessageMapper {
 
+    @Select("select * from message where id = #{id}")
+    Message selectById(Long id);
+
     @Insert("insert into message (sender_id,receiver_id,content,message_type) values (#{senderId},#{receiverId},#{content},#{messageType})")
     @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
     void addPrivateMessage(Message message);

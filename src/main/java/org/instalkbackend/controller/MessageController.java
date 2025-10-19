@@ -1,6 +1,7 @@
 package org.instalkbackend.controller;
 
 import org.instalkbackend.mapper.GroupMemberMapper;
+import org.instalkbackend.mapper.MessageMapper;
 import org.instalkbackend.model.dto.MessageDTO;
 import org.instalkbackend.model.vo.MessageVO;
 import org.instalkbackend.model.vo.Result;
@@ -19,6 +20,8 @@ public class MessageController {
     private MessageService messageService;
     @Autowired
     private GroupMemberMapper groupMemberMapper;
+    @Autowired
+    private MessageMapper messageMapper;
 
     @PostMapping("/send")
     public Result<MessageVO> sendMessage(@RequestBody MessageDTO messageDTO){
@@ -43,4 +46,16 @@ public class MessageController {
         return messageService.getNewMessageList(lastMessage.getId());
     }
 
+    @PostMapping("/read")
+    public Result readMessage(@RequestParam Long messageId){
+        if (messageId == null) return Result.error("参数错误");
+        if (messageMapper.selectById(messageId)==null) return Result.error("消息不存在");
+        return messageService.readMessage(messageId);
+    }
+
+    @PostMapping("/readList")
+    public Result readMessageList(@RequestParam List<Long> messageIds){
+        if (messageIds==null) return Result.error("参数错误");
+        return messageService.readMessageList(messageIds);
+    }
 }

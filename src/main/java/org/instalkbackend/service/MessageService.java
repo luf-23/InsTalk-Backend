@@ -12,4 +12,8 @@ public interface MessageService {
     Result<List<MessageVO>> getMessageList();
 
     Result<List<MessageVO>> getNewMessageList(Long messageId);
+
+    Result readMessage(Long messageId);
+
+    Result readMessageList(List<Long> messageIds);
 }

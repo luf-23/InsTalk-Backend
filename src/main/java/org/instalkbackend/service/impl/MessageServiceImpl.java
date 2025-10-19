@@ -140,4 +140,18 @@ public class MessageServiceImpl implements MessageService {
         messageVOS.addAll(messageVOS2);
         return Result.success(messageVOS);
     }
+
+    @Override
+    public Result readMessage(Long messageId) {
+        Long userId = ThreadLocalUtil.getId();
+        messageStatusMapper.updateToRead(messageId,userId);
+        return Result.success();
+    }
+
+    @Override
+    public Result readMessageList(List<Long> messageIds) {
+        Long userId = ThreadLocalUtil.getId();
+        messageStatusMapper.updateListToRead(userId,messageIds);
+        return Result.success();
+    }
 }
