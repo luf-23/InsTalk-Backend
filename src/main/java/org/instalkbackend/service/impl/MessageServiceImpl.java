@@ -1,5 +1,6 @@
 package org.instalkbackend.service.impl;
 
+import org.instalkbackend.handler.WebSocketHandler;
 import org.instalkbackend.mapper.FriendshipMapper;
 import org.instalkbackend.mapper.GroupMemberMapper;
 import org.instalkbackend.mapper.MessageMapper;
@@ -28,6 +29,8 @@ public class MessageServiceImpl implements MessageService {
     private GroupMemberMapper groupMemberMapper;
     @Autowired
     private FriendshipMapper friendshipMapper;
+    @Autowired
+    private WebSocketHandler webSocketHandler;
 
     @Override
     public Result<MessageVO> sendMessage(MessageDTO messageDTO) {
@@ -45,6 +48,11 @@ public class MessageServiceImpl implements MessageService {
             }
             messageMapper.addPrivateMessage(message);
             messageStatusMapper.add(message.getId(),message.getReceiverId());
+            
+            // 通过 WebSocket 推送消息给接收者
+            message.setSentAt(messageMapper.selectSentAtById(message.getId()));
+            MessageVO messageVO = new MessageVO(message, Boolean.FALSE); // 对接收者来说是未读
+            webSocketHandler.sendMessageToUser(message.getReceiverId(), messageVO);
         }
         if (message.getGroupId()!= null){
             if(groupMemberMapper.select(senderId,message.getGroupId())== null){
@@ -52,10 +60,17 @@ public class MessageServiceImpl implements MessageService {
             }
             messageMapper.addGroupMessage(message);
             List<GroupVO.Member> receiverIds = groupMemberMapper.selectMembersByGroupId(message.getGroupId());
+            List<Long> receiverIdList = new ArrayList<>();
             for (GroupVO.Member member : receiverIds) {
                 if (member.getId()==senderId) continue;
                 messageStatusMapper.add(message.getId(),member.getId());
+                receiverIdList.add(member.getId());
             }
+            
+            // 通过 WebSocket 推送消息给所有群成员（除发送者外）
+            message.setSentAt(messageMapper.selectSentAtById(message.getId()));
+            MessageVO messageVO = new MessageVO(message, Boolean.FALSE); // 对接收者来说是未读
+            webSocketHandler.broadcastMessageToUsers(receiverIdList, messageVO);
         }
         message.setSentAt(messageMapper.selectSentAtById(message.getId()));
         MessageVO messageVO = new MessageVO(message,Boolean.TRUE);
@@ -142,14 +157,14 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Result readMessage(Long messageId) {
+    public Result<Void> readMessage(Long messageId) {
         Long userId = ThreadLocalUtil.getId();
         messageStatusMapper.updateToRead(messageId,userId);
         return Result.success();
     }
 
     @Override
-    public Result readMessageList(List<Long> messageIds) {
+    public Result<Void> readMessageList(List<Long> messageIds) {
         Long userId = ThreadLocalUtil.getId();
         messageStatusMapper.updateListToRead(userId,messageIds);
         return Result.success();

@@ -17,17 +17,14 @@ public interface MessageStatusMapper {
     void updateToRead(Long messageId, Long receiverId);
 
     @Update({
-            "<script>",
-            "UPDATE message_status",
-            "SET is_read = TRUE, read_at = NOW()",
-            "WHERE user_id = #{receiverId}",
-            "AND message_id IN",
-            "<foreach collection='messageIds' item='messageId' open='(' separator=',' close=')'>",
-            "#{messageId}",
-            "</foreach>",
-            "</script>"
+            "<script>" +
+            " UPDATE message_status SET is_read = TRUE, read_at = NOW() " +
+            "WHERE user_id = #{receiverId} " +
+            "AND message_id IN " +
+             "<foreach collection='messageIds' item='id' open='(' close=')' separator=','> #{id} </foreach>" +
+             "</script>"
     })
-    void updateListToRead(Long receiverId, List<Long> messageIds);
+    Integer updateListToRead(Long receiverId, List<Long> messageIds);
 
     @Select("select is_read from message_status where message_id=#{messageId} and user_id=#{receiverId}")
     Boolean select(Long messageId, Long receiverId);

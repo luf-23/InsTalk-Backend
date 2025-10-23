@@ -13,7 +13,7 @@ public interface MessageService {
 
     Result<List<MessageVO>> getNewMessageList(Long messageId);
 
-    Result readMessage(Long messageId);
+    Result<Void> readMessage(Long messageId);
 
-    Result readMessageList(List<Long> messageIds);
+    Result<Void> readMessageList(List<Long> messageIds);
 }
