@@ -1,6 +1,7 @@
 package org.instalkbackend.service.impl;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.instalkbackend.mapper.UserAiConfigMapper;
 import org.instalkbackend.mapper.UserMapper;
 import org.instalkbackend.model.dto.LoginDTO;
 import org.instalkbackend.model.dto.RegisterDTO;
@@ -25,6 +26,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private UserAiConfigMapper userAiConfigMapper;
     @Autowired
     private TokenUtil tokenUtil;
     @Autowired
@@ -78,6 +81,17 @@ public class AuthServiceImpl implements AuthService {
         if (!smtpUtil.verifyCaptcha(registerDTO.getEmail(),registerDTO.getCaptcha())) return Result.error("验证码错误");
         User user = new User(registerDTO.getUsername(),registerDTO.getEmail(),registerDTO.getPassword());
         userMapper.add(user);
+        // 添加机器人
+        User robot = new User();
+        robot.setSignature(String.format("我是%s的ai助手",user.getUsername()));
+        robot.setUsername(String.format("%s的ai助手",user.getUsername()));
+        robot.setEmail(String.format("%s@robot.com",user.getEmail()));
+        robot.setAvatar("https://luf-23.oss-cn-wuhan-lr.aliyuncs.com/ins_talk/ai.png");
+        robot.setRole("ROBOT");
+        robot.setPassword(user.getPassword());
+        userMapper.addRobot(robot);
+        userAiConfigMapper.add(user.getId(),robot.getId());
+
         return Result.success();
     }
 

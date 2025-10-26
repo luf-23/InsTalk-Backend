@@ -19,6 +19,7 @@ public interface UserMapper {
     User selectById(Long id);
 
     @Insert("insert into user (username,email,password) values (#{username},#{email},#{password})")
+    @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
     void add(User user);
 
     @Select({"<script>",
@@ -42,4 +43,9 @@ public interface UserMapper {
 
     @Update("update user set username = #{username},email = #{email},password = #{password},signature = #{signature},avatar = #{avatar} where id = #{id}")
     void update(User newUser);
+
+
+    @Insert("insert into user (username,email,password,signature,avatar,role) values (#{username},#{email},#{password},#{signature},#{avatar},#{role})")
+    @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
+    void addRobot(User robot);
 }
