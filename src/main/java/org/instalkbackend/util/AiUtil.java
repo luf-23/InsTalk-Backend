@@ -8,6 +8,8 @@ import org.instalkbackend.model.po.AiMessage;
 import org.instalkbackend.model.po.UserAiConfig;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -177,5 +179,14 @@ public class AiUtil {
         }
         
         return firstMessage.substring(0, 20) + "...";
+    }
+
+    /**
+     * 检查用户是否需要重置对话
+     * @param userAiConfig 用户AI配置
+     * @return 是否需要重置
+     */
+    public boolean needsReset(UserAiConfig userAiConfig) {
+        return userAiConfig.getLastResetDate() == null || userAiConfig.getLastResetDate().plusDays(1).isBefore(LocalDate.now());
     }
 }

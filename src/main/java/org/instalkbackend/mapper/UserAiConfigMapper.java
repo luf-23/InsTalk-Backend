@@ -18,4 +18,11 @@ public interface UserAiConfigMapper {
 
     @Update("UPDATE user_ai_config SET system_prompt=#{systemPrompt},model=#{model},temperature=#{temperature},top_p=#{topP},presence_penalty=#{presencePenalty},seed=#{seed} WHERE user_id=#{userId} AND robot_id=#{robotId}")
     void update(UserAiConfig newUserAiConfig);
+
+    @Update("UPDATE user_ai_config SET daily_message_count=user_ai_config.daily_message_count+1,last_used_at=NOW() WHERE user_id= #{userId} AND robot_id= #{robotId}")
+    void increaseMessageCount(Long userId, Long robotId);
+
+    @Update("UPDATE user_ai_config SET daily_message_count=0,last_reset_date=NOW() WHERE user_id= #{userId} AND robot_id= #{robotId}")
+    void resetMessageCount(Long userId, Long robotId);
+
 }

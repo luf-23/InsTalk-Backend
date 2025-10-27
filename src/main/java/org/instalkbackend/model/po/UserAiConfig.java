@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.instalkbackend.model.dto.UserAiConfigDTO;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -25,7 +26,7 @@ public class UserAiConfig {
 
     private Integer dailyMessageLimit;
     private Integer dailyMessageCount;
-    private LocalDateTime lastResetDate;
+    private LocalDate lastResetDate;
     private Integer totalMessages;
     private Long totalTokensUsed;
     private LocalDateTime lastUsedAt;

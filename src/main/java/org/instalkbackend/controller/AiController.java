@@ -5,6 +5,7 @@ import org.instalkbackend.model.dto.UserAiConfigDTO;
 import org.instalkbackend.model.vo.AiConversationVO;
 import org.instalkbackend.model.vo.AiMessageVO;
 import org.instalkbackend.model.vo.Result;
+import org.instalkbackend.model.vo.UserAiConfigVO;
 import org.instalkbackend.service.AiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +25,19 @@ public class AiController {
         return aiService.getCredential();
     }
 
+    @GetMapping("/config")
+    public Result<UserAiConfigVO> getAiConfig(@RequestParam Long robotId){
+        if (robotId == null) return Result.error("参数错误");
+        return aiService.getAiConfig(robotId);
+    }
+
     @PostMapping("/update")
     public Result update(@RequestBody UserAiConfigDTO userAiConfigDTO){
         if (userAiConfigDTO == null) return Result.error("参数错误");
         if (userAiConfigDTO.getRobotId() == null) return Result.error("参数错误");
         return aiService.update(userAiConfigDTO);
     }
+
 
     @GetMapping("/conversationList")
     public Result<List<AiConversationVO>> getConversationList(@RequestParam Long robotId){

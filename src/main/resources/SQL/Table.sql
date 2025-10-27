@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS user_ai_config (
                                               top_p DECIMAL(3,2) DEFAULT 1.00 COMMENT 'Top P采样参数',
                                               presence_penalty DECIMAL(3,2) DEFAULT 0.00 COMMENT '存在惩罚(-2到2)',
                                               seed INT DEFAULT 1234 COMMENT '随机数种子',
-                                              -- 限流配置(目前不管）
+                                              -- 限流配置
                                               daily_message_limit INT DEFAULT 100 COMMENT '每日消息限制',
                                               daily_message_count INT DEFAULT 0 COMMENT '今日已使用消息数',
                                               last_reset_date DATE COMMENT '最后重置日期',
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS user_ai_config (
                                               total_messages INT DEFAULT 0 COMMENT '总消息数',
                                               total_tokens_used BIGINT DEFAULT 0 COMMENT '总token使用量',
                                               last_used_at TIMESTAMP COMMENT '最后使用时间',
-                                              -- 时间戳(目前不管）
+                                              -- 时间戳
                                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                               updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                               FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,

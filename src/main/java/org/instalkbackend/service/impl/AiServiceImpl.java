@@ -10,6 +10,7 @@ import org.instalkbackend.model.po.UserAiConfig;
 import org.instalkbackend.model.vo.AiConversationVO;
 import org.instalkbackend.model.vo.AiMessageVO;
 import org.instalkbackend.model.vo.Result;
+import org.instalkbackend.model.vo.UserAiConfigVO;
 import org.instalkbackend.service.AiService;
 import org.instalkbackend.util.AiUtil;
 import org.instalkbackend.util.ThreadLocalUtil;
@@ -71,12 +72,16 @@ public class AiServiceImpl implements AiService {
         if (userAiConfig == null) {
             throw new RuntimeException("AI配置不存在");
         }
-        
+
+        if (aiUtil.needsReset(userAiConfig)){
+            userAiConfigMapper.resetMessageCount(userId, robotId);
+        }
+
         // 检查消息限制
         if (!aiUtil.canSendMessage(userAiConfig)) {
             throw new RuntimeException("已达到每日消息限制");
         }
-        
+
         // 创建SSE发射器，设置超时时间为5分钟
         SseEmitter emitter = new SseEmitter(300000L);
         
@@ -124,6 +129,7 @@ public class AiServiceImpl implements AiService {
                         assistantMessage.setRole("ASSISTANT");
                         assistantMessage.setContent(fullResponse.toString());
                         aiMessageMapper.add(assistantMessage);
+                        userAiConfigMapper.increaseMessageCount(userId, robotId);
                         
                         // 发送完成信号
                         emitter.send(SseEmitter.event()
@@ -213,6 +219,27 @@ public class AiServiceImpl implements AiService {
             aiMessageVO.setSentAt(aiMessage.getSentAt());
             return aiMessageVO;
         }).toList());
+    }
+
+    @Override
+    public Result<UserAiConfigVO> getAiConfig(Long robotId) {
+        Long userId = ThreadLocalUtil.getId();
+        UserAiConfig userAiConfig = userAiConfigMapper.select(userId, robotId);
+        UserAiConfigVO userAiConfigVO = new UserAiConfigVO();
+        userAiConfigVO.setSystemPrompt(userAiConfig.getSystemPrompt());
+        userAiConfigVO.setModel(userAiConfig.getModel());
+        userAiConfigVO.setTemperature(userAiConfig.getTemperature());
+        userAiConfigVO.setMaxTokens(userAiConfig.getMaxTokens());
+        userAiConfigVO.setTopP(userAiConfig.getTopP());
+        userAiConfigVO.setPresencePenalty(userAiConfig.getPresencePenalty());
+        userAiConfigVO.setSeed(userAiConfig.getSeed());
+        userAiConfigVO.setDailyMessageLimit(userAiConfig.getDailyMessageLimit());
+        userAiConfigVO.setDailyMessageCount(userAiConfig.getDailyMessageCount());
+        userAiConfigVO.setLastResetDate(userAiConfig.getLastResetDate());
+        userAiConfigVO.setTotalMessages(userAiConfig.getTotalMessages());
+        userAiConfigVO.setTotalTokensUsed(userAiConfig.getTotalTokensUsed());
+        userAiConfigVO.setLastUsedAt(userAiConfig.getLastUsedAt());
+        return Result.success(userAiConfigVO);
     }
 
 
