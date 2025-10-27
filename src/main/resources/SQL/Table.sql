@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS ai_conversation (
 CREATE TABLE IF NOT EXISTS ai_message (
                                           id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                           conversation_id BIGINT NOT NULL COMMENT '对话会话ID',
-                                          role ENUM('USER', 'ASSISTANT', 'SYSTEM') NOT NULL COMMENT '消息角色',
+                                          role ENUM('USER', 'ASSISTANT') NOT NULL COMMENT '消息角色',
                                           content TEXT NOT NULL COMMENT '消息内容',
                                           -- 时间戳
                                           sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
