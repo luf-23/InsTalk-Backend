@@ -85,18 +85,23 @@ public class AiUtil {
 
     /**
      * 解析流式响应数据
+     * 支持模型: deepseek-v3, deepseek-r1, qwq-plus, qwen-max-2025-01-25
      * @param line SSE数据行
      * @return 提取的内容，如果没有内容则返回null
      */
     public String parseStreamResponse(String line) {
         try {
-            // 跳过空行和非data行
-            if (line == null || line.trim().isEmpty() || !line.startsWith("data:")) {
+            // 跳过空行
+            if (line == null || line.trim().isEmpty()) {
                 return null;
             }
             
-            // 去除"data: "前缀
-            String jsonData = line.substring(5).trim();
+            String jsonData = line.trim();
+            
+            // 如果有 "data: " 前缀，去除它
+            if (jsonData.startsWith("data:")) {
+                jsonData = jsonData.substring(5).trim();
+            }
             
             // 检查是否是结束标记
             if ("[DONE]".equals(jsonData)) {
@@ -110,11 +115,30 @@ public class AiUtil {
             if (choicesNode.isArray() && choicesNode.size() > 0) {
                 JsonNode firstChoice = choicesNode.get(0);
                 JsonNode deltaNode = firstChoice.path("delta");
-                JsonNode contentNode = deltaNode.path("content");
                 
-                if (!contentNode.isMissingNode() && contentNode.isTextual()) {
-                    return contentNode.asText();
+                StringBuilder result = new StringBuilder();
+                
+                // 1. 检查思考内容 (reasoning_content) - 用于 deepseek-r1, qwq-plus 等推理模型
+                JsonNode reasoningNode = deltaNode.path("reasoning_content");
+                if (!reasoningNode.isMissingNode() && reasoningNode.isTextual()) {
+                    String reasoning = reasoningNode.asText();
+                    if (!reasoning.isEmpty()) {
+                        // 可以添加特殊标记区分思考内容和最终答案
+                        result.append(reasoning);
+                    }
                 }
+                
+                // 2. 检查普通内容 (content) - 所有模型都支持
+                JsonNode contentNode = deltaNode.path("content");
+                if (!contentNode.isMissingNode() && contentNode.isTextual()) {
+                    String content = contentNode.asText();
+                    if (!content.isEmpty()) {
+                        result.append(content);
+                    }
+                }
+                
+                // 返回拼接后的内容
+                return result.length() > 0 ? result.toString() : null;
             }
             
             return null;
