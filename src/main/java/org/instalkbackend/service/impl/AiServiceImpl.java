@@ -5,6 +5,7 @@ import org.instalkbackend.mapper.AiMessageMapper;
 import org.instalkbackend.mapper.UserAiConfigMapper;
 import org.instalkbackend.model.dto.AiChatDTO;
 import org.instalkbackend.model.dto.UserAiConfigDTO;
+import org.instalkbackend.model.po.AiConversation;
 import org.instalkbackend.model.po.AiMessage;
 import org.instalkbackend.model.po.UserAiConfig;
 import org.instalkbackend.model.vo.AiConversationVO;
@@ -86,17 +87,17 @@ public class AiServiceImpl implements AiService {
         SseEmitter emitter = new SseEmitter(300000L);
         
         // 获取历史消息
-        List<AiMessage> historyMessages = aiMessageMapper.select(conversationId);
+        List<AiChatDTO.AiChatMessage> historyMessages = aiChatDTO.getMessageHistory();
         
         // 保存用户消息
         AiMessage userMessage = new AiMessage();
         userMessage.setConversationId(conversationId);
         userMessage.setRole("USER");
-        userMessage.setContent(aiChatDTO.getMessage());
+        userMessage.setContent(aiChatDTO.getCurrentUserMessage());
         aiMessageMapper.add(userMessage);
         
         // 构建请求体
-        String requestBody = aiUtil.buildRequestBody(historyMessages, userAiConfig, aiChatDTO.getMessage());
+        String requestBody = aiUtil.buildRequestBody(historyMessages, userAiConfig, aiChatDTO.getCurrentUserMessage());
         
         // 用于累积AI的完整回复
         StringBuilder fullResponse = new StringBuilder();
@@ -223,8 +224,7 @@ public class AiServiceImpl implements AiService {
 
     @Override
     public Result<UserAiConfigVO> getAiConfig(Long robotId) {
-        Long userId = ThreadLocalUtil.getId();
-        UserAiConfig userAiConfig = userAiConfigMapper.select(userId, robotId);
+        UserAiConfig userAiConfig = userAiConfigMapper.selectByRobotId(robotId);
         UserAiConfigVO userAiConfigVO = new UserAiConfigVO();
         userAiConfigVO.setSystemPrompt(userAiConfig.getSystemPrompt());
         userAiConfigVO.setModel(userAiConfig.getModel());
@@ -240,6 +240,15 @@ public class AiServiceImpl implements AiService {
         userAiConfigVO.setTotalTokensUsed(userAiConfig.getTotalTokensUsed());
         userAiConfigVO.setLastUsedAt(userAiConfig.getLastUsedAt());
         return Result.success(userAiConfigVO);
+    }
+
+    @Override
+    public Result<AiConversationVO> createConversation(Long robotId, Long userId) {
+        AiConversation aiConversation = new AiConversation();
+        aiConversation.setUserId(userId);
+        aiConversation.setRobotId(robotId);
+        aiConversationMapper.add(aiConversation);
+        return Result.success(new AiConversationVO(aiConversationMapper.selectById(aiConversation.getId())));
     }
 
 

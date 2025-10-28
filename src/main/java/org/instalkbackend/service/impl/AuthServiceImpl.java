@@ -1,6 +1,7 @@
 package org.instalkbackend.service.impl;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.instalkbackend.mapper.FriendshipMapper;
 import org.instalkbackend.mapper.UserAiConfigMapper;
 import org.instalkbackend.mapper.UserMapper;
 import org.instalkbackend.model.dto.LoginDTO;
@@ -28,6 +29,8 @@ public class AuthServiceImpl implements AuthService {
     private UserMapper userMapper;
     @Autowired
     private UserAiConfigMapper userAiConfigMapper;
+    @Autowired
+    private FriendshipMapper friendshipMapper;
     @Autowired
     private TokenUtil tokenUtil;
     @Autowired
@@ -91,6 +94,9 @@ public class AuthServiceImpl implements AuthService {
         robot.setPassword(user.getPassword());
         userMapper.addRobot(robot);
         userAiConfigMapper.add(user.getId(),robot.getId());
+        Long minId = Long.min(user.getId(),robot.getId());
+        Long maxId = Long.max(user.getId(),robot.getId());
+        friendshipMapper.makeFriendsWithRobot(minId,maxId);
 
         return Result.success();
     }

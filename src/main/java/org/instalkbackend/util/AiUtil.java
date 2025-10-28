@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.instalkbackend.model.dto.AiChatDTO;
 import org.instalkbackend.model.po.AiMessage;
 import org.instalkbackend.model.po.UserAiConfig;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ public class AiUtil {
      * @param userAiConfig 用户AI配置
      * @return 请求体JSON字符串
      */
-    public String buildRequestBody(List<AiMessage> messages, UserAiConfig userAiConfig, String userMessage) {
+    public String buildRequestBody(List<AiChatDTO.AiChatMessage> messages, UserAiConfig userAiConfig, String userMessage) {
         try {
             ObjectNode requestBody = objectMapper.createObjectNode();
             
@@ -43,7 +44,7 @@ public class AiUtil {
             
             // 添加历史消息
             if (messages != null && !messages.isEmpty()) {
-                for (AiMessage message : messages) {
+                for (AiChatDTO.AiChatMessage message : messages) {
                     ObjectNode msgNode = objectMapper.createObjectNode();
                     msgNode.put("role", message.getRole().toLowerCase());
                     msgNode.put("content", message.getContent());

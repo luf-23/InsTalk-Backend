@@ -22,4 +22,6 @@ public interface AiService {
     Result<List<AiMessageVO>> getMessageList(Long conversationId);
 
     Result<UserAiConfigVO> getAiConfig(Long robotId);
+
+    Result<AiConversationVO> createConversation(Long robotId, Long userId);
 }

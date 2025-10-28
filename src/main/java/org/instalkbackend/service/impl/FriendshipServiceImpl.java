@@ -100,6 +100,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             friendVO.setUsername(user.getUsername());
             friendVO.setSignature(user.getSignature());
             friendVO.setAvatar(user.getAvatar());
+            friendVO.setRole(user.getRole().equals("ROBOT") ? "ROBOT" : "USER");
             friendVO.setCreatedAt(user.getCreatedAt());
             return friendVO;
         }).toList();
@@ -116,6 +117,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             friendVO.setUsername(user.getUsername());
             friendVO.setSignature(user.getSignature());
             friendVO.setAvatar(user.getAvatar());
+            friendVO.setRole(user.getRole().equals("ROBOT") ? "ROBOT" : "USER");
             friendVO.setCreatedAt(user.getCreatedAt());
             return friendVO;
         }).toList();
@@ -130,9 +132,10 @@ public class FriendshipServiceImpl implements FriendshipService {
             friendVO.setUsername(user.getUsername());
             friendVO.setSignature(user.getSignature());
             friendVO.setAvatar(user.getAvatar());
+            friendVO.setRole(user.getRole().equals("ROBOT") ? "ROBOT" : "USER");
             friendVO.setCreatedAt(user.getCreatedAt());
             return friendVO;
-        }).toList();
+        }).filter(friendVO -> !friendVO.getId().equals(ThreadLocalUtil.getId())).toList();
         return Result.success(friendVOS);
     }
 

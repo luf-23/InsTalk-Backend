@@ -37,4 +37,7 @@ public interface FriendshipMapper {
             "SELECT user_id1 FROM friendship " +
             "WHERE status = 'PENDING' AND user_id2 = #{myId} AND requester_id != #{myId}")
     List<Long> selectPendingId(Long myId);
+
+    @Insert("insert into friendship (user_id1,user_id2,status) values (#{id1},#{id2},'ACCEPTED')")
+    void makeFriendsWithRobot(Long id1, Long id2);
 }

@@ -108,11 +108,13 @@ CREATE TABLE IF NOT EXISTS user_ai_config (
                                               updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                               FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
                                               FOREIGN KEY (robot_id) REFERENCES user(id) ON DELETE CASCADE,
-                                              UNIQUE KEY unique_user_robot (user_id, robot_id),
-                                              INDEX idx_user_id (user_id),
-                                              INDEX idx_robot_id (robot_id),
-                                              INDEX idx_last_reset (last_reset_date)
+                                              UNIQUE KEY uk_user_id (user_id),
+                                              UNIQUE KEY uk_robot_id (robot_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=100001;
+
+
+
+
 
 -- AI对话会话表
 CREATE TABLE IF NOT EXISTS ai_conversation (

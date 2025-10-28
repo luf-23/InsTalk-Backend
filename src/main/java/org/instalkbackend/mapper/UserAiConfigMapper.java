@@ -25,4 +25,9 @@ public interface UserAiConfigMapper {
     @Update("UPDATE user_ai_config SET daily_message_count=0,last_reset_date=NOW() WHERE user_id= #{userId} AND robot_id= #{robotId}")
     void resetMessageCount(Long userId, Long robotId);
 
+    @Select("SELECT * FROM user_ai_config WHERE user_id= #{userId} AND robot_id= #{robotId}")
+    UserAiConfig isOwner(Long userId, Long robotId);
+
+    @Select("SELECT * FROM user_ai_config WHERE robot_id = #{robotId}")
+    UserAiConfig selectByRobotId(Long robotId);
 }

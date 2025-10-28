@@ -12,6 +12,7 @@ public class FriendVO {
     private Long id;
     private String username;
     private String signature;
+    private String role;//ROBOT or USER
     private String avatar;
     private LocalDateTime createdAt;
 
@@ -19,6 +20,7 @@ public class FriendVO {
         this.id = user.getId();
         this.username = user.getUsername();
         this.signature = user.getSignature();
+        this.role = user.getRole().equals("ROBOT") ? "ROBOT" : "USER";
         this.avatar = user.getAvatar();
         this.createdAt = createdAt;
     }
