@@ -7,13 +7,15 @@ import java.util.List;
 @Data
 public class AiChatDTO {
     private String taskId;
-    private Long conversationId;
+    private Long robotId;
     private String currentUserMessage;
-    private List<AiChatMessage> messageHistory;
+    private Long currentUserMessageId;
+    private List<Long> messageIds;
 
+    //该类只在后端构建用，不用前端传递
     @Data
     public static class AiChatMessage{
-        private String role;//USER or ASSISTANT
+        private String role;
         private String content;
     }
 }

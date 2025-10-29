@@ -1,9 +1,6 @@
 package org.instalkbackend.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.instalkbackend.model.po.Message;
 
 import java.time.LocalDateTime;
@@ -41,5 +38,15 @@ public interface MessageMapper {
 
     @Select("select sent_at from message where id = #{id}")
     LocalDateTime selectSentAtById(Long id);
+
+    @Select({
+            "<script>",
+            "SELECT * FROM message WHERE id IN",
+            "<foreach collection='ids' item='id' open='(' separator=',' close=')'>",
+            "#{id}",
+            "</foreach>",
+            "</script>"
+    })
+    List<Message> selectByIds(@Param("ids") List<Long> ids);
 
 }

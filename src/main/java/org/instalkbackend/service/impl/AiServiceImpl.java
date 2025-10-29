@@ -1,15 +1,13 @@
 package org.instalkbackend.service.impl;
 
-import org.instalkbackend.mapper.AiConversationMapper;
-import org.instalkbackend.mapper.AiMessageMapper;
+import org.instalkbackend.handler.WebSocketHandler;
+import org.instalkbackend.mapper.MessageMapper;
 import org.instalkbackend.mapper.UserAiConfigMapper;
 import org.instalkbackend.model.dto.AiChatDTO;
 import org.instalkbackend.model.dto.UserAiConfigDTO;
-import org.instalkbackend.model.po.AiConversation;
-import org.instalkbackend.model.po.AiMessage;
+import org.instalkbackend.model.po.Message;
 import org.instalkbackend.model.po.UserAiConfig;
-import org.instalkbackend.model.vo.AiConversationVO;
-import org.instalkbackend.model.vo.AiMessageVO;
+import org.instalkbackend.model.vo.MessageVO;
 import org.instalkbackend.model.vo.Result;
 import org.instalkbackend.model.vo.UserAiConfigVO;
 import org.instalkbackend.service.AiService;
@@ -33,9 +31,9 @@ public class AiServiceImpl implements AiService {
     @Autowired
     private UserAiConfigMapper userAiConfigMapper;
     @Autowired
-    private AiConversationMapper aiConversationMapper;
+    private MessageMapper messageMapper;
     @Autowired
-    private AiMessageMapper aiMessageMapper;
+    private WebSocketHandler webSocketHandler;
 
     @Override
     public Result<String> getCredential() {
@@ -60,10 +58,8 @@ public class AiServiceImpl implements AiService {
         if (taskId == null || !userTasksMap.containsKey(userId) || !userTasksMap.get(userId).contains(taskId)) {
             throw new RuntimeException("无效的任务ID");
         }
-        
-        // 验证conversationId和获取配置
-        Long conversationId = aiChatDTO.getConversationId();
-        Long robotId = aiConversationMapper.selectRobotIdById(conversationId);
+
+        Long robotId = aiChatDTO.getRobotId();
         if (robotId == null) {
             throw new RuntimeException("对话不存在");
         }
@@ -87,14 +83,17 @@ public class AiServiceImpl implements AiService {
         SseEmitter emitter = new SseEmitter(300000L);
         
         // 获取历史消息
-        List<AiChatDTO.AiChatMessage> historyMessages = aiChatDTO.getMessageHistory();
+        List<AiChatDTO.AiChatMessage> historyMessages  = messageMapper.selectByIds(aiChatDTO.getMessageIds()).stream().map(message -> {
+            AiChatDTO.AiChatMessage aiChatMessage = new AiChatDTO.AiChatMessage();
+            aiChatMessage.setRole(Objects.equals(message.getSenderId(), userId) ? "user" : "assistant");
+            aiChatMessage.setContent(message.getContent());
+            return aiChatMessage;
+        }).toList();
         
-        // 保存用户消息
-        AiMessage userMessage = new AiMessage();
-        userMessage.setConversationId(conversationId);
-        userMessage.setRole("USER");
-        userMessage.setContent(aiChatDTO.getCurrentUserMessage());
-        aiMessageMapper.add(userMessage);
+        // 将用户消息通过 WebSocket 发送给 AI Robot 用户
+        Message userMessage = messageMapper.selectById(aiChatDTO.getCurrentUserMessageId());
+        MessageVO messageVO = new MessageVO(userMessage, false);
+        webSocketHandler.sendMessageToUser(robotId, messageVO);
         
         // 构建请求体
         String requestBody = aiUtil.buildRequestBody(historyMessages, userAiConfig, aiChatDTO.getCurrentUserMessage());
@@ -125,14 +124,23 @@ public class AiServiceImpl implements AiService {
                 .doOnComplete(() -> {
                     try {
                         // 保存AI回复
-                        AiMessage assistantMessage = new AiMessage();
-                        assistantMessage.setConversationId(conversationId);
-                        assistantMessage.setRole("ASSISTANT");
+                        Message assistantMessage = new Message();
+                        assistantMessage.setSenderId(robotId);
+                        assistantMessage.setReceiverId(userId);
+                        assistantMessage.setMessageType("TEXT");
                         assistantMessage.setContent(fullResponse.toString());
-                        aiMessageMapper.add(assistantMessage);
+                        messageMapper.addPrivateMessage(assistantMessage);
+
+                        // 增加消息计数
                         userAiConfigMapper.increaseMessageCount(userId, robotId);
-                        
-                        // 发送完成信号
+
+                        // 通过 WebSocket 将 AI 回复推送给用户和AI自己
+                        MessageVO aiMessageVO = new MessageVO(messageMapper.selectById(assistantMessage.getId()), false);
+                        webSocketHandler.sendMessageToUser(userId, aiMessageVO);
+                        aiMessageVO.setIsRead(Boolean.TRUE);
+                        webSocketHandler.sendMessageToUser(robotId, aiMessageVO);
+
+                        // 发送完成信号到 SSE
                         emitter.send(SseEmitter.event()
                                 .data("[DONE]")
                                 .name("done"));
@@ -195,32 +203,6 @@ public class AiServiceImpl implements AiService {
         return Result.success(null);
     }
 
-    @Override
-    public Result<List<AiConversationVO>> getConversationList(Long robotId) {
-        Long userId = ThreadLocalUtil.getId();
-        return Result.success(aiConversationMapper.selectByUserIdAndRobotId(userId, robotId).stream().map(aiConversation -> {
-            AiConversationVO aiConversationVO = new AiConversationVO();
-            aiConversationVO.setId(aiConversation.getId());
-            aiConversationVO.setRobotId(aiConversation.getRobotId());
-            aiConversationVO.setTitle(aiConversation.getTitle());
-            aiConversationVO.setSummary(aiConversation.getSummary());
-            aiConversationVO.setLastMessageAt(aiConversation.getLastMessageAt());
-            aiConversationVO.setCreatedAt(aiConversation.getCreatedAt());
-            return aiConversationVO;
-        }).toList());
-    }
-
-    @Override
-    public Result<List<AiMessageVO>> getMessageList(Long conversationId) {
-        return Result.success(aiMessageMapper.select(conversationId).stream().map(aiMessage -> {
-            AiMessageVO aiMessageVO = new AiMessageVO();
-            aiMessageVO.setId(aiMessage.getId());
-            aiMessageVO.setRole(aiMessage.getRole());
-            aiMessageVO.setContent(aiMessage.getContent());
-            aiMessageVO.setSentAt(aiMessage.getSentAt());
-            return aiMessageVO;
-        }).toList());
-    }
 
     @Override
     public Result<UserAiConfigVO> getAiConfig(Long robotId) {
@@ -242,14 +224,6 @@ public class AiServiceImpl implements AiService {
         return Result.success(userAiConfigVO);
     }
 
-    @Override
-    public Result<AiConversationVO> createConversation(Long robotId, Long userId) {
-        AiConversation aiConversation = new AiConversation();
-        aiConversation.setUserId(userId);
-        aiConversation.setRobotId(robotId);
-        aiConversationMapper.add(aiConversation);
-        return Result.success(new AiConversationVO(aiConversationMapper.selectById(aiConversation.getId())));
-    }
 
 
 }

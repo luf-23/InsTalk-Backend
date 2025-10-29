@@ -5,8 +5,6 @@ import org.instalkbackend.mapper.UserAiConfigMapper;
 import org.instalkbackend.model.dto.AiChatDTO;
 import org.instalkbackend.model.dto.UserAiConfigDTO;
 import org.instalkbackend.model.po.Friendship;
-import org.instalkbackend.model.vo.AiConversationVO;
-import org.instalkbackend.model.vo.AiMessageVO;
 import org.instalkbackend.model.vo.Result;
 import org.instalkbackend.model.vo.UserAiConfigVO;
 import org.instalkbackend.service.AiService;
@@ -14,8 +12,6 @@ import org.instalkbackend.util.ThreadLocalUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/ai")
@@ -53,27 +49,6 @@ public class AiController {
         return aiService.update(userAiConfigDTO);
     }
 
-
-    @GetMapping("/conversationList")
-    public Result<List<AiConversationVO>> getConversationList(@RequestParam Long robotId){
-        return aiService.getConversationList(robotId);
-    }
-
-    @GetMapping("/messageList")
-    public Result<List<AiMessageVO>> getMessageList(@RequestParam Long conversationId){
-        return aiService.getMessageList(conversationId);
-    }
-
-    @PostMapping("/createConversation")
-    public Result<AiConversationVO> createConversation(@RequestParam Long robotId){
-        if (robotId == null) return Result.error("参数错误");
-        Long userId = ThreadLocalUtil.getId();
-        Long minId = Long.min(userId,robotId);
-        Long maxId = Long.max(userId,robotId);
-        Friendship friendship = friendshipMapper.selectByUserId1AndUserId2(minId,maxId);
-        if (friendship==null || !friendship.getStatus().equals("ACCEPTED")) return Result.error("请先添加机器人为好友");
-        return aiService.createConversation(robotId,userId);
-    }
 
     @PostMapping("/chat-stream")
     public SseEmitter streamChat(@RequestBody AiChatDTO aiChatDTO){

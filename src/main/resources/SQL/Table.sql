@@ -113,34 +113,3 @@ CREATE TABLE IF NOT EXISTS user_ai_config (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=100001;
 
 
-
-
-
--- AI对话会话表
-CREATE TABLE IF NOT EXISTS ai_conversation (
-                                               id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                               user_id BIGINT NOT NULL COMMENT '用户ID',
-                                               robot_id BIGINT NOT NULL COMMENT 'AI机器人ID',
-                                               title VARCHAR(255) DEFAULT '新对话' COMMENT '对话标题',
-                                               summary TEXT COMMENT '对话摘要',
-                                               -- 时间戳
-                                               last_message_at TIMESTAMP COMMENT '最后消息时间',
-                                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                               FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
-                                               FOREIGN KEY (robot_id) REFERENCES user(id) ON DELETE CASCADE,
-                                               INDEX idx_user_robot (user_id, robot_id),
-                                               INDEX idx_last_message (last_message_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=100001 COMMENT='AI对话会话表';
-
--- AI聊天消息表
-CREATE TABLE IF NOT EXISTS ai_message (
-                                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                          conversation_id BIGINT NOT NULL COMMENT '对话会话ID',
-                                          role ENUM('USER', 'ASSISTANT') NOT NULL COMMENT '消息角色',
-                                          content TEXT NOT NULL COMMENT '消息内容',
-                                          -- 时间戳
-                                          sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                          FOREIGN KEY (conversation_id) REFERENCES ai_conversation(id) ON DELETE CASCADE,
-                                          INDEX idx_conversation (conversation_id),
-                                          INDEX idx_sent_at (sent_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=100001 COMMENT='AI聊天消息表';
