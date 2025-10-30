@@ -4,7 +4,6 @@ import org.apache.ibatis.annotations.*;
 import org.instalkbackend.model.po.Message;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 
 @Mapper
@@ -41,10 +40,17 @@ public interface MessageMapper {
 
     @Select({
             "<script>",
-            "SELECT * FROM message WHERE id IN",
+            "SELECT * FROM message WHERE",
+            "<if test='ids != null and !ids.isEmpty()'>",
+            "id IN",
             "<foreach collection='ids' item='id' open='(' separator=',' close=')'>",
             "#{id}",
             "</foreach>",
+            "</if>",
+            "<if test='ids == null or ids.isEmpty()'>",
+            "1 = 0",
+            "</if>",
+            "ORDER BY sent_at ASC",
             "</script>"
     })
     List<Message> selectByIds(@Param("ids") List<Long> ids);

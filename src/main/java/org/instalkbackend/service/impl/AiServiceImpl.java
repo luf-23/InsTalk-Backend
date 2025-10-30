@@ -2,6 +2,7 @@ package org.instalkbackend.service.impl;
 
 import org.instalkbackend.handler.WebSocketHandler;
 import org.instalkbackend.mapper.MessageMapper;
+import org.instalkbackend.mapper.MessageStatusMapper;
 import org.instalkbackend.mapper.UserAiConfigMapper;
 import org.instalkbackend.model.dto.AiChatDTO;
 import org.instalkbackend.model.dto.UserAiConfigDTO;
@@ -32,6 +33,8 @@ public class AiServiceImpl implements AiService {
     private UserAiConfigMapper userAiConfigMapper;
     @Autowired
     private MessageMapper messageMapper;
+    @Autowired
+    private MessageStatusMapper messageStatusMapper;
     @Autowired
     private WebSocketHandler webSocketHandler;
 
@@ -65,13 +68,13 @@ public class AiServiceImpl implements AiService {
         }
         
         // 获取用户AI配置
-        UserAiConfig userAiConfig = userAiConfigMapper.select(userId, robotId);
+        UserAiConfig userAiConfig = userAiConfigMapper.select(robotId);
         if (userAiConfig == null) {
             throw new RuntimeException("AI配置不存在");
         }
 
         if (aiUtil.needsReset(userAiConfig)){
-            userAiConfigMapper.resetMessageCount(userId, robotId);
+            userAiConfigMapper.resetMessageCount(robotId);
         }
 
         // 检查消息限制
@@ -129,15 +132,18 @@ public class AiServiceImpl implements AiService {
                         assistantMessage.setReceiverId(userId);
                         assistantMessage.setMessageType("TEXT");
                         assistantMessage.setContent(fullResponse.toString());
+
                         messageMapper.addPrivateMessage(assistantMessage);
+                        messageStatusMapper.add(assistantMessage.getId(), assistantMessage.getReceiverId());
+                        messageStatusMapper.addAndRead(assistantMessage.getId(), assistantMessage.getSenderId());
 
                         // 增加消息计数
-                        userAiConfigMapper.increaseMessageCount(userId, robotId);
+                        userAiConfigMapper.increaseMessageCount(robotId);
 
                         // 通过 WebSocket 将 AI 回复推送给用户和AI自己
-                        MessageVO aiMessageVO = new MessageVO(messageMapper.selectById(assistantMessage.getId()), false);
+                        MessageVO aiMessageVO = new MessageVO(messageMapper.selectById(assistantMessage.getId()), messageStatusMapper.select(assistantMessage.getId(), userId));
                         webSocketHandler.sendMessageToUser(userId, aiMessageVO);
-                        aiMessageVO.setIsRead(Boolean.TRUE);
+                        aiMessageVO.setIsRead(messageStatusMapper.select(assistantMessage.getId(), robotId));
                         webSocketHandler.sendMessageToUser(robotId, aiMessageVO);
 
                         // 发送完成信号到 SSE
@@ -196,8 +202,7 @@ public class AiServiceImpl implements AiService {
 
     @Override
     public Result<Void> update(UserAiConfigDTO userAiConfigDTO) {
-        Long userId = ThreadLocalUtil.getId();
-        UserAiConfig userAiConfig = userAiConfigMapper.select(userId, userAiConfigDTO.getRobotId());
+        UserAiConfig userAiConfig = userAiConfigMapper.select(userAiConfigDTO.getRobotId());
         UserAiConfig newUserAiConfig = new UserAiConfig(userAiConfig, userAiConfigDTO);
         userAiConfigMapper.update(newUserAiConfig);
         return Result.success(null);
