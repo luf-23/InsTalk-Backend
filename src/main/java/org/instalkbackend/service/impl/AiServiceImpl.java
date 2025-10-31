@@ -99,7 +99,7 @@ public class AiServiceImpl implements AiService {
         webSocketHandler.sendMessageToUser(robotId, messageVO);
         
         // 构建请求体
-        String requestBody = aiUtil.buildRequestBody(historyMessages, userAiConfig, aiChatDTO.getCurrentUserMessage());
+        String requestBody = aiUtil.buildRequestBody(historyMessages, userAiConfig, userMessage.getContent());
         
         // 用于累积AI的完整回复
         StringBuilder fullResponse = new StringBuilder();
@@ -139,6 +139,8 @@ public class AiServiceImpl implements AiService {
 
                         // 增加消息计数
                         userAiConfigMapper.increaseMessageCount(robotId);
+                        //增加token使用
+                        userAiConfigMapper.increaseTokenCount(robotId,aiUtil.estimateTokenCount(fullResponse.toString()));
 
                         // 通过 WebSocket 将 AI 回复推送给用户和AI自己
                         MessageVO aiMessageVO = new MessageVO(messageMapper.selectById(assistantMessage.getId()), messageStatusMapper.select(assistantMessage.getId(), userId));

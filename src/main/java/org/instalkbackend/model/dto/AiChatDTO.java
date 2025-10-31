@@ -8,7 +8,6 @@ import java.util.List;
 public class AiChatDTO {
     private String taskId;
     private Long robotId;
-    private String currentUserMessage;
     private Long currentUserMessageId;
     private List<Long> messageIds;
 

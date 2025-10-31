@@ -30,4 +30,7 @@ public interface UserAiConfigMapper {
 
     @Select("SELECT * FROM user_ai_config WHERE robot_id = #{robotId}")
     UserAiConfig selectByRobotId(Long robotId);
+
+    @Update("UPDATE user_ai_config SET total_tokens_used=total_tokens_used+#{totalTokensUsed} WHERE robot_id= #{robotId}")
+    void increaseTokenCount(Long robotId, Long totalTokensUsed);
 }

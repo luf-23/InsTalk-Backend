@@ -162,23 +162,6 @@ public class AiUtil {
         return userAiConfig.getDailyMessageCount() < userAiConfig.getDailyMessageLimit();
     }
 
-    /**
-     * 生成会话标题
-     * @param firstMessage 第一条用户消息
-     * @return 会话标题
-     */
-    public String generateConversationTitle(String firstMessage) {
-        if (firstMessage == null || firstMessage.isEmpty()) {
-            return "新对话";
-        }
-        
-        // 截取前20个字符作为标题
-        if (firstMessage.length() <= 20) {
-            return firstMessage;
-        }
-        
-        return firstMessage.substring(0, 20) + "...";
-    }
 
     /**
      * 检查用户是否需要重置对话
@@ -187,5 +170,22 @@ public class AiUtil {
      */
     public boolean needsReset(UserAiConfig userAiConfig) {
         return userAiConfig.getLastResetDate() == null || userAiConfig.getLastResetDate().plusDays(1).isBefore(LocalDate.now());
+    }
+
+
+    public Long estimateTokenCount(String text) {
+        if (text == null || text.isEmpty()) return 0L;
+
+        // 计算中文字符数
+        long chineseCharCount = text.chars().filter(ch -> ch >= 0x4e00 && ch <= 0x9fff).count();
+        long englishCharCount = text.length() - chineseCharCount;
+
+        // 估算英文部分的tokens：大约4个字符 = 1个token
+        long englishTokens = (long) Math.ceil(englishCharCount / 4.0);
+
+        // 中文部分的tokens：每个字符大约1个token
+        long chineseTokens = chineseCharCount;
+
+        return englishTokens + chineseTokens;
     }
 }
