@@ -169,7 +169,12 @@ public class AiUtil {
      * @return 是否需要重置
      */
     public boolean needsReset(UserAiConfig userAiConfig) {
-        return userAiConfig.getLastResetDate() == null || userAiConfig.getLastResetDate().plusDays(1).isBefore(LocalDate.now());
+        // 如果从未重置过，需要重置
+        if (userAiConfig.getLastResetDate() == null) {
+            return true;
+        }
+        // 如果最后重置日期不是今天，需要重置
+        return !userAiConfig.getLastResetDate().isEqual(LocalDate.now());
     }
 
 

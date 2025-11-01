@@ -214,6 +214,14 @@ public class AiServiceImpl implements AiService {
     @Override
     public Result<UserAiConfigVO> getAiConfig(Long robotId) {
         UserAiConfig userAiConfig = userAiConfigMapper.selectByRobotId(robotId);
+        
+        // 检查是否需要重置每日计数
+        if (aiUtil.needsReset(userAiConfig)) {
+            userAiConfigMapper.resetMessageCount(robotId);
+            // 重新查询以获取重置后的数据
+            userAiConfig = userAiConfigMapper.selectByRobotId(robotId);
+        }
+        
         UserAiConfigVO userAiConfigVO = new UserAiConfigVO();
         userAiConfigVO.setSystemPrompt(userAiConfig.getSystemPrompt());
         userAiConfigVO.setModel(userAiConfig.getModel());

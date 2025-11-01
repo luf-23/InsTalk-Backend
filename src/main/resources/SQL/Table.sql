@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS user_ai_config (
                                               -- 统计信息(目前不管）
                                               total_messages INT DEFAULT 0 COMMENT '总消息数',
                                               total_tokens_used BIGINT DEFAULT 0 COMMENT '总token使用量',
-                                              last_used_at TIMESTAMP COMMENT '最后使用时间',
+                                              last_used_at TIMESTAMP NULL DEFAULT NULL COMMENT '最后使用时间',
                                               -- 时间戳
                                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                               updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
