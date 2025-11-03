@@ -1,6 +1,7 @@
 package org.instalkbackend.service;
 
 import org.instalkbackend.model.dto.MessageDTO;
+import org.instalkbackend.model.po.Message;
 import org.instalkbackend.model.vo.MessageVO;
 import org.instalkbackend.model.vo.Result;
 
@@ -16,4 +17,6 @@ public interface MessageService {
     Result<Void> readMessage(Long messageId);
 
     Result<Void> readMessageList(List<Long> messageIds);
+
+    Result<Void> revokeMessage(Message message);
 }

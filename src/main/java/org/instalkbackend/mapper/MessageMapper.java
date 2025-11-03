@@ -55,4 +55,9 @@ public interface MessageMapper {
     })
     List<Message> selectByIds(@Param("ids") List<Long> ids);
 
+    @Delete("delete from message where id = #{id}")
+    void deleteById(Long id);
+
+    @Delete("delete from message where sender_id=#{id1} and receiver_id=#{id2} or sender_id=#{id2} and receiver_id=#{id1}")
+    void deleteId1AndId2(Long id1, Long id2);
 }

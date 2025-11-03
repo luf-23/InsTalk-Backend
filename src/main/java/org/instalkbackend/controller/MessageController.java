@@ -3,6 +3,7 @@ package org.instalkbackend.controller;
 import org.instalkbackend.mapper.GroupMemberMapper;
 import org.instalkbackend.mapper.MessageMapper;
 import org.instalkbackend.model.dto.MessageDTO;
+import org.instalkbackend.model.po.Message;
 import org.instalkbackend.model.vo.MessageVO;
 import org.instalkbackend.model.vo.Result;
 import org.instalkbackend.service.MessageService;
@@ -57,5 +58,15 @@ public class MessageController {
     public Result readMessageList(@RequestParam List<Long> messageIds){
         if (messageIds==null) return Result.error("参数错误");
         return messageService.readMessageList(messageIds);
+    }
+
+
+    @PostMapping("/revoke")
+    public Result revokeMessage(@RequestParam Long messageId){
+        if (messageId == null) return Result.error("参数错误");
+        Message message = messageMapper.selectById(messageId);
+        if (message==null) return Result.error("消息不存在");
+        if (!message.getSenderId().equals(ThreadLocalUtil.getId())) return Result.error("您没有权限");
+        return messageService.revokeMessage(message);
     }
 }

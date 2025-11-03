@@ -1,6 +1,8 @@
 package org.instalkbackend.service.impl;
 
+import org.instalkbackend.handler.WebSocketHandler;
 import org.instalkbackend.mapper.FriendshipMapper;
+import org.instalkbackend.mapper.MessageMapper;
 import org.instalkbackend.mapper.UserMapper;
 import org.instalkbackend.model.po.Friendship;
 import org.instalkbackend.model.po.User;
@@ -21,6 +23,10 @@ public class FriendshipServiceImpl implements FriendshipService {
     private FriendshipMapper friendshipMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private WebSocketHandler webSocketHandler;
+    @Autowired
+    private MessageMapper messageMapper;
 
     @Override
     public Result sendFriendshipRequest(Long id) {
@@ -87,6 +93,12 @@ public class FriendshipServiceImpl implements FriendshipService {
             else if (friendship.getStatus().equals("BLOCKED")) return Result.error("你已被拉入黑名单或对方被你拉入了黑名单");
         }
         friendshipMapper.deleteRequest(id1,id2);
+        messageMapper.deleteId1AndId2(id1,id2);
+
+        
+        // 通过 WebSocket 通知对方好友已被删除
+        webSocketHandler.sendFriendDeletedNotification(id, myId);
+        
         return  Result.success();
     }
 

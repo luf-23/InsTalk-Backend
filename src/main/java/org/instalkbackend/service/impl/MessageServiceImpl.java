@@ -169,4 +169,28 @@ public class MessageServiceImpl implements MessageService {
         messageStatusMapper.updateListToRead(userId,messageIds);
         return Result.success();
     }
+
+    @Override
+    public Result<Void> revokeMessage(Message message) {
+        Long messageId = message.getId();
+        messageMapper.deleteById(messageId);
+        
+        // 通过 WebSocket 通知相关用户消息已被撤回
+        if (message.getReceiverId() != null) {
+            // 私聊消息：通知接收者
+            webSocketHandler.sendMessageRecallNotification(message.getReceiverId(), messageId);
+        } else if (message.getGroupId() != null) {
+            // 群聊消息：通知所有群成员（除了发送者）
+            List<GroupVO.Member> members = groupMemberMapper.selectMembersByGroupId(message.getGroupId());
+            List<Long> receiverIds = new ArrayList<>();
+            for (GroupVO.Member member : members) {
+                if (!member.getId().equals(message.getSenderId())) {
+                    receiverIds.add(member.getId());
+                }
+            }
+            webSocketHandler.broadcastMessageRecallNotification(receiverIds, messageId);
+        }
+        
+        return Result.success();
+    }
 }

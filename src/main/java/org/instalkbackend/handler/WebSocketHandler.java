@@ -157,6 +157,61 @@ public class WebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
+     * 发送消息撤回通知给指定用户
+     */
+    public void sendMessageRecallNotification(Long userId, Long messageId) {
+        WebSocketSession session = onlineUsers.get(userId);
+        if (session != null && session.isOpen()) {
+            try {
+                Map<String, Object> payload = Map.of(
+                    "type", "MESSAGE_RECALL",
+                    "data", Map.of("messageId", messageId)
+                );
+                String json = objectMapper.writeValueAsString(payload);
+                session.sendMessage(new TextMessage(json));
+                log.debug("发送消息撤回通知给用户 {}，消息ID：{}", userId, messageId);
+            } catch (IOException e) {
+                log.error("发送消息撤回通知给用户 {} 失败：{}", userId, e.getMessage());
+            }
+        } else {
+            log.debug("用户 {} 不在线，无法发送消息撤回通知", userId);
+        }
+    }
+
+    /**
+     * 广播消息撤回通知给多个用户
+     */
+    public void broadcastMessageRecallNotification(Iterable<Long> userIds, Long messageId) {
+        for (Long userId : userIds) {
+            sendMessageRecallNotification(userId, messageId);
+        }
+    }
+
+    /**
+     * 发送好友删除通知给指定用户
+     * @param userId 被删除好友的用户ID（接收通知的人）
+     * @param deleterId 执行删除操作的用户ID（删除好友的人）
+     */
+    public void sendFriendDeletedNotification(Long userId, Long deleterId) {
+        WebSocketSession session = onlineUsers.get(userId);
+        if (session != null && session.isOpen()) {
+            try {
+                Map<String, Object> payload = Map.of(
+                    "type", "FRIEND_DELETED",
+                    "data", Map.of("friendId", deleterId)
+                );
+                String json = objectMapper.writeValueAsString(payload);
+                session.sendMessage(new TextMessage(json));
+                log.info("发送好友删除通知给用户 {}，删除者ID：{}", userId, deleterId);
+            } catch (IOException e) {
+                log.error("发送好友删除通知给用户 {} 失败：{}", userId, e.getMessage());
+            }
+        } else {
+            log.debug("用户 {} 不在线，无法发送好友删除通知", userId);
+        }
+    }
+
+    /**
      * 检查用户是否在线
      */
     public boolean isUserOnline(Long userId) {
