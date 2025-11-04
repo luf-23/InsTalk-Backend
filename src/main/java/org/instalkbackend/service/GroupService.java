@@ -18,4 +18,8 @@ public interface GroupService {
     Result<List<GroupVO>> search(String nameLike);
 
     Result update(GroupDTO groupDTO);
+
+    Result leaveGroup(Long groupId, Long userId);
+
+    Result delete(Long ownerId, Long groupId);
 }

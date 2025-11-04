@@ -1,5 +1,6 @@
 package org.instalkbackend.mapper;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -34,4 +35,10 @@ public interface GroupMemberMapper {
 
     @Select("SELECT user_id FROM group_member WHERE group_id = #{id} AND role = 'ADMIN'")
     List<Long> selectAdminIdsByGroupId(Long id);
+
+    @Select("SELECT user_id FROM group_member WHERE group_id = #{groupId}")
+    List<Long> selectAllMemberIdsByGroupId(Long groupId);
+
+    @Delete("DELETE FROM group_member WHERE group_id = #{groupId} AND user_id = #{userId}")
+    void deleteMember(Long groupId, Long userId);
 }

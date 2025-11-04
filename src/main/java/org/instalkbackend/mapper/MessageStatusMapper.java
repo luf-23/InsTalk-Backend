@@ -17,7 +17,7 @@ public interface MessageStatusMapper {
     void addAndRead(Long messageId, Long receiverId);
 
     @Update("update message_status set is_read = TRUE,read_at=now() where user_id = #{receiverId} and message_id = #{messageId}")
-    void updateToRead(Long messageId, Long receiverId);
+    Integer updateToRead(Long messageId, Long receiverId);
 
     @Update({
             "<script>" +
@@ -27,7 +27,7 @@ public interface MessageStatusMapper {
              "<foreach collection='messageIds' item='id' open='(' close=')' separator=','> #{id} </foreach>" +
              "</script>"
     })
-    void updateListToRead(Long receiverId, List<Long> messageIds);
+    Integer updateListToRead(Long receiverId, List<Long> messageIds);
 
     @Select("select is_read from message_status where message_id=#{messageId} and user_id=#{receiverId}")
     Boolean select(Long messageId, Long receiverId);

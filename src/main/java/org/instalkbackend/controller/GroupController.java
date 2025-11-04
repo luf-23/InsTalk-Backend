@@ -1,9 +1,12 @@
 package org.instalkbackend.controller;
 
+import org.instalkbackend.mapper.ChatGroupMapper;
+import org.instalkbackend.mapper.GroupMemberMapper;
 import org.instalkbackend.model.dto.GroupDTO;
 import org.instalkbackend.model.vo.GroupVO;
 import org.instalkbackend.model.vo.Result;
 import org.instalkbackend.service.GroupService;
+import org.instalkbackend.util.ThreadLocalUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +18,10 @@ public class GroupController {
 
     @Autowired
     private GroupService groupService;
+    @Autowired
+    private GroupMemberMapper groupMemberMapper;
+    @Autowired
+    private ChatGroupMapper chatGroupMapper;
 
     @PostMapping("/create")
     public Result<GroupVO> createGroup(@RequestBody GroupDTO groupDTO){
@@ -45,5 +52,19 @@ public class GroupController {
     public Result update(@RequestBody GroupDTO groupDTO){
         if (groupDTO==null || groupDTO.getId()==null) return Result.error("参数错误");
         return groupService.update(groupDTO);
+    }
+
+    @PostMapping("/leave")
+    public Result exit(@RequestParam Long groupId){
+        Long userId = ThreadLocalUtil.getId();
+        if (groupMemberMapper.select(userId, groupId)==null) return Result.error("您已退出该群");
+        return groupService.leaveGroup(groupId, userId);
+    }
+
+    @PostMapping("/delete")
+    public Result delete(@RequestParam Long groupId){
+        Long ownerId = ThreadLocalUtil.getId();
+        if (chatGroupMapper.selectByOwnerId(ownerId)==null) return Result.error("您没有权限删除该群");
+        return groupService.delete(ownerId,groupId);
     }
 }

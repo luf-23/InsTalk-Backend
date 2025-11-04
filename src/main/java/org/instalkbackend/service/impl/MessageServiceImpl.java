@@ -159,14 +159,22 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public Result<Void> readMessage(Long messageId) {
         Long userId = ThreadLocalUtil.getId();
-        messageStatusMapper.updateToRead(messageId,userId);
+        Integer count = messageStatusMapper.updateToRead(messageId,userId);
+        if (count == 0) messageStatusMapper.addAndRead(messageId,userId);
         return Result.success();
     }
 
     @Override
     public Result<Void> readMessageList(List<Long> messageIds) {
         Long userId = ThreadLocalUtil.getId();
-        messageStatusMapper.updateListToRead(userId,messageIds);
+        Integer count = messageStatusMapper.updateListToRead(userId,messageIds);
+        if (count < messageIds.size()) {
+            for (Long messageId : messageIds){
+                if (messageStatusMapper.select(messageId,userId) == null){
+                    messageStatusMapper.addAndRead(messageId,userId);
+                }
+            }
+        }
         return Result.success();
     }
 

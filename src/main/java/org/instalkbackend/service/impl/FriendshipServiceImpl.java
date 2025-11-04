@@ -93,7 +93,7 @@ public class FriendshipServiceImpl implements FriendshipService {
             else if (friendship.getStatus().equals("BLOCKED")) return Result.error("你已被拉入黑名单或对方被你拉入了黑名单");
         }
         friendshipMapper.deleteRequest(id1,id2);
-        messageMapper.deleteId1AndId2(id1,id2);
+        messageMapper.deleteById1AndId2(id1,id2);
 
         
         // 通过 WebSocket 通知对方好友已被删除

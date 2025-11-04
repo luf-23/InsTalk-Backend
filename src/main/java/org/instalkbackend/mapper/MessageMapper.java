@@ -59,5 +59,5 @@ public interface MessageMapper {
     void deleteById(Long id);
 
     @Delete("delete from message where sender_id=#{id1} and receiver_id=#{id2} or sender_id=#{id2} and receiver_id=#{id1}")
-    void deleteId1AndId2(Long id1, Long id2);
+    void deleteById1AndId2(Long id1, Long id2);
 }

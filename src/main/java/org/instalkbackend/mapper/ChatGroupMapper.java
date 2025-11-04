@@ -33,4 +33,7 @@ public interface ChatGroupMapper {
 
     @Update("UPDATE chat_group SET name=#{name},description=#{description},avatar=#{avatar} WHERE id=#{id}")
     void update(ChatGroup newChatGroup);
+
+    @Delete("DELETE FROM chat_group WHERE owner_id = #{ownerId} AND id = #{groupId}")
+    void delete(Long ownerId, Long groupId);
 }

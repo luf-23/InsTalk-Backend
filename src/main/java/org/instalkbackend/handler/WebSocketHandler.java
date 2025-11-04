@@ -212,6 +212,44 @@ public class WebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
+     * 发送群组解散通知给指定用户
+     * @param userId 群成员的用户ID（接收通知的人）
+     * @param groupId 被解散的群组ID
+     */
+    public void sendGroupDeletedNotification(Long userId, Long groupId) {
+        WebSocketSession session = onlineUsers.get(userId);
+        if (session != null && session.isOpen()) {
+            try {
+                Map<String, Object> payload = Map.of(
+                    "type", "GROUP_DELETED",
+                    "data", Map.of("groupId", groupId)
+                );
+                String json = objectMapper.writeValueAsString(payload);
+                session.sendMessage(new TextMessage(json));
+                log.info("发送群组解散通知给用户 {}，群组ID：{}", userId, groupId);
+            } catch (IOException e) {
+                log.error("发送群组解散通知给用户 {} 失败：{}", userId, e.getMessage());
+            }
+        } else {
+            log.debug("用户 {} 不在线，无法发送群组解散通知", userId);
+        }
+    }
+
+    /**
+     * 广播群组解散通知给多个用户
+     * @param userIds 群成员的用户ID列表
+     * @param groupId 被解散的群组ID
+     */
+    public void broadcastGroupDeletedNotification(Iterable<Long> userIds, Long groupId) {
+        int count = 0;
+        for (Long userId : userIds) {
+            sendGroupDeletedNotification(userId, groupId);
+            count++;
+        }
+        log.info("广播群组解散通知，群组ID：{}，通知用户数：{}", groupId, count);
+    }
+
+    /**
      * 检查用户是否在线
      */
     public boolean isUserOnline(Long userId) {

@@ -16,6 +16,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("http://localhost:5173/");
         config.addAllowedOrigin("http://localhost:5174/");
+        config.addAllowedOrigin("http://localhost:5175/");
         config.addAllowedOrigin("http://43.142.2.253/");
         config.addAllowedOrigin("http://luf.woyioii.cn/");
         config.addAllowedOrigin("http://192.168.159.105:5173/");
