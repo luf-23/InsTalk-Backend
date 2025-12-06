@@ -17,6 +17,7 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                     WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+        //attributes为当前会话的所有属性
         
         // 从查询参数中获取token
         String query = request.getURI().getQuery();
