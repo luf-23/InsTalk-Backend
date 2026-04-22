@@ -21,7 +21,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(webSocketHandler, "/ws")
-                .addInterceptors(webSocketAuthInterceptor)
-                .setAllowedOrigins("*"); // 生产环境应配置具体的域名
+                .addInterceptors(webSocketAuthInterceptor);
     }
 }
