@@ -14,6 +14,7 @@ import org.instalkbackend.model.vo.UserAiConfigVO;
 import org.instalkbackend.service.AiService;
 import org.instalkbackend.util.AiUtil;
 import org.instalkbackend.util.ThreadLocalUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.*;
 
+@Slf4j
 @Service
 public class AiServiceImpl implements AiService {
 
@@ -115,9 +117,9 @@ public class AiServiceImpl implements AiService {
                         String content = aiUtil.parseStreamResponse(chunk);
                         if (content != null && !content.isEmpty()) {
                             fullResponse.append(content);
-                            // 发送到前端
+                            // 与 Cloud、前端 fetch SSE 解析一致：避免 data 内真实换行被拆成多行 data:
                             emitter.send(SseEmitter.event()
-                                    .data(content)
+                                    .data(content.replace("\n", "\\n"))
                                     .name("message"));
                         }
                     } catch (Exception e) {
@@ -126,43 +128,21 @@ public class AiServiceImpl implements AiService {
                 })
                 .doOnComplete(() -> {
                     try {
-                        // 保存AI回复
-                        Message assistantMessage = new Message();
-                        assistantMessage.setSenderId(robotId);
-                        assistantMessage.setReceiverId(userId);
-                        assistantMessage.setMessageType("TEXT");
-                        assistantMessage.setContent(fullResponse.toString());
-
-                        messageMapper.addPrivateMessage(assistantMessage);
-                        messageStatusMapper.add(assistantMessage.getId(), assistantMessage.getReceiverId());
-                        messageStatusMapper.addAndRead(assistantMessage.getId(), assistantMessage.getSenderId());
-
-                        // 增加消息计数
-                        userAiConfigMapper.increaseMessageCount(robotId);
-                        //增加token使用
-                        userAiConfigMapper.increaseTokenCount(robotId,aiUtil.estimateTokenCount(fullResponse.toString()));
-
-                        // 通过 WebSocket 将 AI 回复推送给用户和AI自己
-                        MessageVO aiMessageVO = new MessageVO(messageMapper.selectById(assistantMessage.getId()), messageStatusMapper.select(assistantMessage.getId(), userId));
-                        webSocketHandler.sendMessageToUser(userId, aiMessageVO);
-                        aiMessageVO.setIsRead(messageStatusMapper.select(assistantMessage.getId(), robotId));
-                        webSocketHandler.sendMessageToUser(robotId, aiMessageVO);
-
-                        // 发送完成信号到 SSE
                         emitter.send(SseEmitter.event()
                                 .data("[DONE]")
                                 .name("done"));
-                        emitter.complete();
-                        
-                        // 清理taskId
-                        if (userTasksMap.containsKey(userId)) {
-                            userTasksMap.get(userId).remove(taskId);
-                            if (userTasksMap.get(userId).isEmpty()) {
-                                userTasksMap.remove(userId);
-                            }
-                        }
                     } catch (Exception e) {
-                        emitter.completeWithError(e);
+                        log.debug("SSE 发送 DONE 失败（客户端可能已断开）: {}", e.getMessage());
+                    }
+                    try {
+                        emitter.complete();
+                    } catch (Exception e) {
+                        log.debug("SSE complete 失败: {}", e.getMessage());
+                    }
+                    try {
+                        persistAssistantReply(userId, robotId, fullResponse.toString());
+                    } catch (Exception e) {
+                        log.error("AI 流式结束后持久化失败 userId={} robotId={}", userId, robotId, e);
                     }
                 })
                 .doOnError(error -> {
@@ -200,6 +180,27 @@ public class AiServiceImpl implements AiService {
         });
         
         return emitter;
+    }
+
+    private void persistAssistantReply(Long userId, Long robotId, String fullResponseText) {
+        Message assistantMessage = new Message();
+        assistantMessage.setSenderId(robotId);
+        assistantMessage.setReceiverId(userId);
+        assistantMessage.setMessageType("TEXT");
+        assistantMessage.setContent(fullResponseText);
+
+        messageMapper.addPrivateMessage(assistantMessage);
+        messageStatusMapper.add(assistantMessage.getId(), assistantMessage.getReceiverId());
+        messageStatusMapper.addAndRead(assistantMessage.getId(), assistantMessage.getSenderId());
+
+        userAiConfigMapper.increaseMessageCount(robotId);
+        userAiConfigMapper.increaseTokenCount(robotId, aiUtil.estimateTokenCount(fullResponseText));
+
+        MessageVO aiMessageVO = new MessageVO(messageMapper.selectById(assistantMessage.getId()),
+                messageStatusMapper.select(assistantMessage.getId(), userId));
+        webSocketHandler.sendMessageToUser(userId, aiMessageVO);
+        aiMessageVO.setIsRead(messageStatusMapper.select(assistantMessage.getId(), robotId));
+        webSocketHandler.sendMessageToUser(robotId, aiMessageVO);
     }
 
     @Override
