@@ -27,7 +27,7 @@ public class AiUtil {
             ObjectNode requestBody = objectMapper.createObjectNode();
             
             // 设置模型
-            requestBody.put("model", userAiConfig.getModel() != null ? userAiConfig.getModel() : "qwen-plus");
+            requestBody.put("model", userAiConfig.getModel() != null ? userAiConfig.getModel() : "deepseek-v3");
             
             // 构建消息数组
             ArrayNode messagesArray = objectMapper.createArrayNode();
